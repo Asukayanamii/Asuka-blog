@@ -1,4 +1,5 @@
-export const topics = [
+import { ref } from 'vue'
+export const topics = ref([
   {
     id: 1,
     title: '前端魔法',
@@ -24,4 +25,4 @@ export const topics = [
     title: '创作指南',
     description: '写作与内容策略，帮你把技术笔记打造成连载式故事。',
   },
-]
+])

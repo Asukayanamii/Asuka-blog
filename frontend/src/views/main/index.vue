@@ -17,7 +17,7 @@
                                 <div v-if="dropdownOpen" class="nav-dropdown-menu">
                                     <div class="categories-list">
                                         <a v-for="cat in categories" :key="cat.id" href="#" class="category-link" @click.prevent="selectCategory(cat)">
-                                            {{ cat.title }}
+                                            {{ cat.name }}
                                         </a>
                                         <div v-if="categories.length === 0" class="empty-hint">暂无栏目</div>
                                     </div>
@@ -37,10 +37,20 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { topics as sharedTopics } from '@/data/topics'
+import { loadTopics, topics } from '@/composables/useTopics'
+import { describe } from 'vitest'
+
+onMounted(async () => {
+    const tempTopics = await loadTopics()
+    // console.log('loaded topics', topics.value[0])
+    // sharedTopics.value = tempTopics
+})
 
 const isNavHidden = ref(false)
 const dropdownOpen = ref(false)
-const categories = computed(() => sharedTopics)
+const selectedCategory = []
+// console.log('selectedCategory', selectedCategory)
+const categories = computed(() => topics.value)
 
 let lastScrollY = 0
 let ticking = false

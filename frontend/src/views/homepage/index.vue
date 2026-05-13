@@ -40,7 +40,7 @@
       <el-scrollbar class="topic-scrollbar" wrap-style="overflow-x:auto; overflow-y:hidden;">
         <div class="topic-scroll-inner">
           <article v-for="topic in topics" :key="topic.id" class="feature-card">
-            <h3>{{ topic.title }}</h3>
+            <h3>{{ topic.name }}</h3>
             <p>{{ topic.description }}</p>
           </article>
         </div>
@@ -74,17 +74,22 @@
           <p>加入友链</p>
           <h2>共享你的技术笔记</h2>
         </div>
-        <button type="button">立即加入</button>
+        <button type="button">联系我</button>
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { topics as sharedTopics } from '@/data/topics'
+import { onMounted, ref } from 'vue'
+import { topics as sharedTopics} from '@/data/topics'
+import { loadTopics, topics as trueTopics } from '@/composables/useTopics'
 
-const topics = ref(sharedTopics)
+onMounted(async () => {
+    const tempTopics = await loadTopics()
+})
+
+const topics = ref(trueTopics)
 
 const posts = ref([
   {

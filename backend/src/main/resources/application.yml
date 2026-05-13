@@ -30,7 +30,7 @@ springdoc:
   group-configs:
     - group: 默认分组
       paths-to-match: /**
-      packages-to-scan: com.example.controller  # 扫描Controller包
+      packages-to-scan: com.asuka.backend.controller  # 扫描Controller包
 
 knife4j:
   enable: true                  # 开启Knife4j增强
