@@ -13,16 +13,9 @@ export function getAllTopics() {
 export async function loadTopics() {
   try {
     const result = await getAllTopics()
-    const data = result?.data ?? result
-    if (Array.isArray(data)) {
-      topics.value = data
-    } else {
-      console.warn('loadTopics returned unexpected payload:', result)
-    }
-    return topics.value
+    topics.value = result.data
   } catch (error) {
     console.error('loadTopics failed', error)
-    return topics.value
   }
 }
 

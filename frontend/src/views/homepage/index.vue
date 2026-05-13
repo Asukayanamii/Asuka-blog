@@ -89,7 +89,7 @@ onMounted(async () => {
     const tempTopics = await loadTopics()
 })
 
-const topics = ref(trueTopics)
+const topics = trueTopics
 
 const posts = ref([
   {
