@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: backend
+  datasource:
+    driver-class-name: ${blog.datasource.driver-class-name}
+    url: jdbc:mysql://${blog.datasource.host}:${blog.datasource.port}/${blog.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${blog.datasource.username}
+    password: ${blog.datasource.password}
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.asuka.backend.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tags-sorter: alpha          # 标签排序：alpha/order
+    operations-sorter: order    # 接口排序：order 支持 @ApiOperationSupport(order)
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  group-configs:
+    - group: 默认分组
+      paths-to-match: /**
+      packages-to-scan: com.example.controller  # 扫描Controller包
+
+knife4j:
+  enable: true                  # 开启Knife4j增强
+  production: false              # 生产环境设为true，自动屏蔽文档
+  basic:                         # 可选：开启密码访问
+    enable: false
+    username: admin
+    password: 123456
+  setting:
+    language: zh_cn             # 中文/英文：zh_cn/en
+    enable-version: true
+    enable-swagger-models: true

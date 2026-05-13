@@ -3,6 +3,7 @@ backend/target/
 backend/.mvn/
 backend/logs/
 backend/.gitignore
+backend/src/main/resources/application-dev.yml
 *.iml
 *.idea
 
