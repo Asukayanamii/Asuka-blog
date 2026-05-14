@@ -20,6 +20,8 @@ public class ArticleListVO {
     private String title;
     @Schema(description = "文章总结")
     private String summary;
+    @Schema(description = "专题名称")
+    private String topicName;
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
     @Schema(description = "更新时间")

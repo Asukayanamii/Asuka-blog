@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class TopicVO {
     private Integer id;
     //专题名称
-    private String name;
+    private String topicName;
     //专题描述
     private String description;
 }

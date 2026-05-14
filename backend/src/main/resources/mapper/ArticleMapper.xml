@@ -3,7 +3,8 @@
 <mapper namespace="com.asuka.backend.mapper.ArticleMapper">
 
     <select id="pageQuery" resultType="com.asuka.backend.pojo.vo.ArticleListVO">
-        SELECT * FROM blog_article
+        SELECT blog_article.*,blog_topic.topic_name FROM blog_article left join blog_topic
+        on blog_article.topic_id = blog_topic.id
         <where>
             <if test="title != null and title !=''">
                 AND title LIKE CONCAT('%',#{title},'%')

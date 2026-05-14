@@ -17,7 +17,7 @@
                                 <div v-if="dropdownOpen" class="nav-dropdown-menu">
                                     <div class="categories-list">
                                         <a v-for="cat in categories" :key="cat.id" href="#" class="category-link" @click.prevent="selectCategory(cat)">
-                                            {{ cat.name }}
+                                            {{ cat.topicName }}
                                         </a>
                                         <div v-if="categories.length === 0" class="empty-hint">暂无栏目</div>
                                     </div>

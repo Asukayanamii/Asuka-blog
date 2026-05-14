@@ -40,7 +40,7 @@
       <el-scrollbar class="topic-scrollbar" wrap-style="overflow-x:auto; overflow-y:hidden;">
         <div class="topic-scroll-inner">
           <article v-for="topic in topics" :key="topic.id" class="feature-card">
-            <h3>{{ topic.name }}</h3>
+            <h3>{{ topic.topicName }}</h3>
             <p>{{ topic.description }}</p>
           </article>
         </div>
@@ -59,9 +59,9 @@
       <el-scrollbar class="post-scrollbar" wrap-style="overflow-x:auto; overflow-y:hidden;">
         <div class="post-scroll-inner">
           <article v-for="post in posts" :key="post.id" class="post-card">
-            <span class="post-tag">{{ post.category }}</span>
+            <span class="post-tag">{{ post.topicName }}</span>
             <h3>{{ post.title }}</h3>
-            <p>{{ post.description }}</p>
+            <p>{{ post.summary }}</p>
             <a :href="post.link || '#'">阅读详情 →</a>
           </article>
         </div>
@@ -84,6 +84,8 @@
 import { onMounted, ref } from 'vue'
 import { topics as sharedTopics} from '@/data/topics'
 import { loadTopics, topics as trueTopics } from '@/composables/useTopics'
+import request from '@/utils/request'
+import { getArticles } from '@/composables/useArticle'
 
 onMounted(async () => {
     const tempTopics = await loadTopics()
@@ -91,7 +93,7 @@ onMounted(async () => {
 
 const topics = trueTopics
 
-const posts = ref([
+const defaultPosts = [
   {
     id: 1,
     category: '前端',
@@ -127,7 +129,26 @@ const posts = ref([
     description: '用粉色与蓝色打造清新视觉，加强版式与动效的沉浸式体验。',
     link: '#',
   },
-])
+]
+const posts = ref([])
+onMounted(async () => {
+  let query = {
+    pageNum: 1,
+    pageSize: 10,
+
+  }
+  let queryResult = await getArticles(query.pageNum, query.pageSize,null,null)
+  if (!queryResult || !queryResult.records) {
+    console.error('Failed to load articles, using default posts')
+    posts.value = defaultPosts
+    return
+  }
+  // console.log('Query object:', queryResult)
+  posts.value = queryResult.records
+})
+
+
+
 </script>
 
 <style scoped>

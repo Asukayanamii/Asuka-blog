@@ -17,6 +17,7 @@ mybatis:
   type-aliases-package: com.asuka.backend.entity
   configuration:
     map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 # 只保留这些干净的 springdoc 配置
 springdoc:
