@@ -17,11 +17,15 @@ import java.time.LocalDateTime;
 public class Topic {
     private Integer id;
     //专题名称
+    @Schema(description = "专题名称")
     private String name;
     //专题描述
+    @Schema(description = "专题描述")
     private String description;
-    //专题图片
+    //创建日期
+    @Schema(description = "创建日期")
     private LocalDateTime createTime;
-    //专题图片
+    //更新日期
+    @Schema(description = "更新日期")
     private LocalDateTime updateTime;
 }

@@ -18,28 +18,12 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 
+# 只保留这些干净的 springdoc 配置
 springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
-    tags-sorter: alpha          # 标签排序：alpha/order
-    operations-sorter: order    # 接口排序：order 支持 @ApiOperationSupport(order)
+    tags-sorter: alpha
   api-docs:
     enabled: true
     path: /v3/api-docs
-  group-configs:
-    - group: 默认分组
-      paths-to-match: /**
-      packages-to-scan: com.asuka.backend.controller  # 扫描Controller包
-
-knife4j:
-  enable: true                  # 开启Knife4j增强
-  production: false              # 生产环境设为true，自动屏蔽文档
-  basic:                         # 可选：开启密码访问
-    enable: false
-    username: admin
-    password: 123456
-  setting:
-    language: zh_cn             # 中文/英文：zh_cn/en
-    enable-version: true
-    enable-swagger-models: true
