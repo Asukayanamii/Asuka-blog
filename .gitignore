@@ -18,3 +18,11 @@ npm-debug.log
 .idea/
 *.log
 .DS_Store
+.claude/
+
+# 部署产物
+deploy/backend.jar
+deploy/frontend-dist/
+deploy/application-prod.yml
+deploy/seed-md/
+deploy/.env

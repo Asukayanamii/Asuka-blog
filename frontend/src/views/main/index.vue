@@ -23,7 +23,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="#">最新</a>
+                            <router-link to="/articles">最新</router-link>
                             <router-link to="/about">关于</router-link>
                         </div>
                     </nav>
@@ -36,9 +36,9 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { topics as sharedTopics } from '@/data/topics'
 import { loadTopics, topics } from '@/composables/useTopics'
-import { describe } from 'vitest'
 
 onMounted(async () => {
     const tempTopics = await loadTopics()
@@ -49,6 +49,7 @@ onMounted(async () => {
 const isNavHidden = ref(false)
 const dropdownOpen = ref(false)
 const selectedCategory = []
+const router = useRouter()
 // console.log('selectedCategory', selectedCategory)
 const categories = computed(() => topics.value)
 
@@ -61,8 +62,7 @@ const toggleDropdown = () => {
 
 const selectCategory = (category) => {
   dropdownOpen.value = false
-  // 这里可以添加跳转逻辑或分类筛选逻辑
-  console.log('selected category', category)
+  router.push({ name: 'articles', query: { topicId: category.id } })
 }
 
 const handleScroll = () => {
@@ -103,20 +103,14 @@ onUnmounted(() => {
         linear-gradient(135deg, #f0f4ff 0%, #ffe8f5 50%, #f0f8ff 100%);
     color: #2a3a5f;
     overflow-x: hidden;
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
 }
 
 .top-nav {
     position: fixed;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100vw;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
     z-index: 50;
     display: flex;
     align-items: center;
@@ -129,7 +123,7 @@ onUnmounted(() => {
 }
 
 .top-nav.hidden {
-    transform: translate(-50%, -100%);
+    transform: translateY(-100%);
     opacity: 0;
 }
 
@@ -215,6 +209,10 @@ onUnmounted(() => {
     border: 1px solid rgba(91, 124, 255, 0.1);
     z-index: 100;
     animation: slideDown 0.2s ease;
+}
+
+.common-layout .el-main {
+    padding: 0;
 }
 
 @keyframes slideDown {

@@ -24,6 +24,8 @@ public class Article {
     private String contentMd;
     @Schema(description = "文章内容HTML格式")
     private String contentHtml;
+    @Schema(description = "专题ID")
+    private Integer topicId;
     @Schema(description = "排序系数")
     private Integer sort;
     @Schema(description = "创建时间")

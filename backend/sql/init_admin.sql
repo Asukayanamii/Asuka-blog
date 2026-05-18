@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS blog_admin (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    username    VARCHAR(50)  NOT NULL UNIQUE,
+    password    VARCHAR(255) NOT NULL,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO blog_admin (username, password) VALUES ('admin', '$2a$10$j4GyuujZji3DH6X4dgCJhevIQMXYaErEiLFKDxMDQskR4AcmWZ1NG');

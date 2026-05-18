@@ -15,4 +15,46 @@
         </where>
         order by update_time desc
     </select>
+
+    <select id="selectById" resultType="com.asuka.backend.pojo.vo.ArticleDetailVO">
+        SELECT blog_article.id, blog_article.title, blog_article.summary,
+               blog_article.content_html, blog_topic.topic_name,
+               blog_article.create_time, blog_article.update_time
+        FROM blog_article
+        LEFT JOIN blog_topic ON blog_article.topic_id = blog_topic.id
+        WHERE blog_article.id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO blog_article (title, summary, content_md, content_html, topic_id, sort, create_time, update_time)
+        VALUES (#{title}, #{summary}, #{contentMd}, #{contentHtml}, #{topicId}, #{sort}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="selectByIdWithMd" resultType="com.asuka.backend.pojo.vo.ArticleDetailWithMdVO">
+        SELECT blog_article.id, blog_article.title, blog_article.summary,
+               blog_article.content_md, blog_article.content_html,
+               blog_article.topic_id, blog_topic.topic_name,
+               blog_article.sort, blog_article.create_time, blog_article.update_time
+        FROM blog_article
+        LEFT JOIN blog_topic ON blog_article.topic_id = blog_topic.id
+        WHERE blog_article.id = #{id}
+    </select>
+
+    <update id="update">
+        UPDATE blog_article
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="contentMd != null">content_md = #{contentMd},</if>
+            <if test="contentHtml != null">content_html = #{contentHtml},</if>
+            <if test="topicId != null">topic_id = #{topicId},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM blog_article WHERE id = #{id}
+    </delete>
 </mapper>

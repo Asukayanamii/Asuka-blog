@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: asuka-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 870218
+      MYSQL_DATABASE: asuka_blog
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p870218"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: eclipse-temurin:17-jre
+    container_name: asuka-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend.jar:/app/backend.jar
+      - ./application-prod.yml:/app/application-prod.yml
+    working_dir: /app
+    command: java -jar -Dspring.profiles.active=prod backend.jar
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:alpine
+    container_name: asuka-frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend-dist:/usr/share/nginx/html
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

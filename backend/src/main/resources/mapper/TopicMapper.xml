@@ -5,4 +5,23 @@
     <select id="getAll" resultType="com.asuka.backend.pojo.vo.TopicVO">
         SELECT * FROM blog_topic
     </select>
+
+    <select id="getById" resultType="com.asuka.backend.pojo.entity.Topic">
+        SELECT * FROM blog_topic WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO blog_topic (topic_name, description, create_time, update_time)
+        VALUES (#{topicName}, #{description}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update">
+        UPDATE blog_topic
+        SET topic_name = #{topicName}, description = #{description}, update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM blog_topic WHERE id = #{id}
+    </delete>
 </mapper>

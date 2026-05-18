@@ -1,5 +1,4 @@
 import request from "@/utils/request";
-import { ref } from "vue";
 
 export async function getArticles(pageNum, pageSize, topicId, title) {
     try {
@@ -22,11 +21,12 @@ export async function getArticles(pageNum, pageSize, topicId, title) {
     }
 }
 
-export async function loadArticles() {
+export async function getArticleDetail(id) {
   try {
-    const result = await getAllArticles()
-    articles.value = result.data
+    const result = await request.get('/user/articles/detail?id=' + id)
+    return result.data
   } catch (error) {
-    console.error('loadArticles failed', error)
+    console.error('getArticleDetail failed', error)
+    return null
   }
 }

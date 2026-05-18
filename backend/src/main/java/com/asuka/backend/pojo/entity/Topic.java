@@ -18,7 +18,7 @@ public class Topic {
     private Integer id;
     //专题名称
     @Schema(description = "专题名称")
-    private String name;
+    private String topicName;
     //专题描述
     @Schema(description = "专题描述")
     private String description;

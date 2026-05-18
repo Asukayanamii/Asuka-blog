@@ -8,7 +8,7 @@
           这里是Asuka的技术小天地，兼具开发力。包含文章、工具、部署笔记与灵感合集。
         </p>
         <div class="hero-actions">
-          <a href="#posts" class="btn btn-primary">浏览最新文章</a>
+          <router-link to="/articles" class="btn btn-primary">浏览最新文章</router-link>
           <a href="#topics" class="btn btn-secondary">探索专题</a>
         </div>
       </div>
@@ -39,10 +39,10 @@
       </div>
       <el-scrollbar class="topic-scrollbar" wrap-style="overflow-x:auto; overflow-y:hidden;">
         <div class="topic-scroll-inner">
-          <article v-for="topic in topics" :key="topic.id" class="feature-card">
+          <router-link v-for="topic in topics" :key="topic.id" :to="{ name: 'articles', query: { topicId: topic.id } }" class="feature-card">
             <h3>{{ topic.topicName }}</h3>
             <p>{{ topic.description }}</p>
-          </article>
+          </router-link>
         </div>
       </el-scrollbar>
     </section>
@@ -58,12 +58,12 @@
 
       <el-scrollbar class="post-scrollbar" wrap-style="overflow-x:auto; overflow-y:hidden;">
         <div class="post-scroll-inner">
-          <article v-for="post in posts" :key="post.id" class="post-card">
+          <router-link v-for="post in posts" :key="post.id" :to="{ name: 'articleDetail', params: { id: post.id } }" class="post-card">
             <span class="post-tag">{{ post.topicName }}</span>
             <h3>{{ post.title }}</h3>
             <p>{{ post.summary }}</p>
-            <a :href="post.link || '#'">阅读详情 →</a>
-          </article>
+            <span class="read-link">阅读详情 →</span>
+          </router-link>
         </div>
       </el-scrollbar>
     </section>
@@ -74,9 +74,24 @@
           <p>加入友链</p>
           <h2>共享你的技术笔记</h2>
         </div>
-        <button type="button">联系我</button>
+        <button type="button" @click="showQR = true">联系我</button>
       </div>
     </section>
+
+    <el-dialog v-model="showQR" title="联系我" width="320px" align-center>
+      <div class="qrcode-dialog-body">
+        <div class="qrcode-placeholder">
+          <div class="qrcode-grid">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <p class="qrcode-dialog-text">扫码添加微信</p>
+        <p class="qrcode-dialog-hint">（待填写）</p>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -93,57 +108,19 @@ onMounted(async () => {
 
 const topics = trueTopics
 
-const defaultPosts = [
-  {
-    id: 1,
-    category: '前端',
-    title: '用 Vue 3 打造萌系组件库',
-    description: '从样式系统到交互动画，一步步构建具有二次元风格的组件页面。',
-    link: '#',
-  },
-  {
-    id: 2,
-    category: '部署',
-    title: '在 GitHub Pages 上发布你的粉色博客',
-    description: '简易部署流程与优化建议，让你的樱花主题博客稳定上线。',
-    link: '#',
-  },
-  {
-    id: 3,
-    category: '灵感',
-    title: '从手绘到 UI：甜美科技设计指南',
-    description: '结合二次元插画和界面设计，创建让用户忍不住停留的页面体验。',
-    link: '#',
-  },
-  {
-    id: 4,
-    category: '工具',
-    title: '提升你的开发效率：少女心工具集',
-    description: '精选插件、自动化与工作流推荐，为你打造可爱的高效开发环境。',
-    link: '#',
-  },
-  {
-    id: 5,
-    category: '设计',
-    title: '色彩与排版：构建甜美技术页面',
-    description: '用粉色与蓝色打造清新视觉，加强版式与动效的沉浸式体验。',
-    link: '#',
-  },
-]
 const posts = ref([])
+const showQR = ref(false)
 onMounted(async () => {
   let query = {
     pageNum: 1,
     pageSize: 10,
-
   }
-  let queryResult = await getArticles(query.pageNum, query.pageSize,null,null)
+  let queryResult = await getArticles(query.pageNum, query.pageSize, null, null)
   if (!queryResult || !queryResult.records) {
-    console.error('Failed to load articles, using default posts')
-    posts.value = defaultPosts
+    console.error('Failed to load articles')
+    posts.value = []
     return
   }
-  // console.log('Query object:', queryResult)
   posts.value = queryResult.records
 })
 
@@ -398,6 +375,18 @@ h1 {
   color: #5b7cff;
 }
 
+.feature-card {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 28px 60px rgba(91, 124, 255, 0.15);
+}
+
 .feature-card p,
 .post-card p {
   color: #5a6a8a;
@@ -416,21 +405,29 @@ h1 {
   margin-bottom: 1rem;
 }
 
-.post-card a {
+.post-card {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 28px 60px rgba(91, 124, 255, 0.15);
+}
+
+.read-link {
   display: inline-flex;
   margin-top: auto;
   color: #3b4d8f;
   font-weight: 700;
-  text-decoration: none;
-  background: transparent;
   transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.post-card a:hover,
-.post-card a:focus {
+.post-card:hover .read-link {
   color: #5b7cff;
-  transform: translateY(-1px);
-  background: transparent;
+  transform: translateX(4px);
 }
 
 .subscribe {
@@ -477,7 +474,7 @@ h1 {
   .features,
   .posts,
   .subscribe {
-    padding: 1.5rem 1rem !important;
+    padding: 1.5rem 1rem;
   }
 
   h1 {
@@ -511,7 +508,7 @@ h1 {
   .features,
   .posts,
   .subscribe {
-    padding: 1.8rem 1.5rem !important;
+    padding: 1.8rem 1.5rem;
   }
 
   .hero {
@@ -525,7 +522,7 @@ h1 {
   .features,
   .posts,
   .subscribe {
-    padding: 2rem 2rem !important;
+    padding: 2rem 2rem;
   }
 }
 
@@ -541,7 +538,7 @@ h1 {
   .features,
   .posts,
   .subscribe {
-    padding: 2.5rem 3rem !important;
+    padding: 2.5rem 2rem;
   }
 }
 
@@ -550,11 +547,63 @@ h1 {
   .features,
   .posts,
   .subscribe {
-    padding: 3rem 4rem !important;
+    padding: 3rem 2rem;
   }
 
   .hero .hero-copy {
     max-width: 620px;
   }
+}
+</style>
+
+<style>
+.qrcode-dialog-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.qrcode-dialog-body .qrcode-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qrcode-dialog-body .qrcode-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  width: 140px;
+  height: 140px;
+  padding: 10px;
+  background: #fff;
+  border: 2px solid #e0e8f0;
+  border-radius: 12px;
+}
+
+.qrcode-dialog-body .qrcode-grid span {
+  border-radius: 2px;
+}
+
+.qrcode-dialog-body .qrcode-grid span:nth-child(odd) {
+  background: #2a3a5f;
+}
+
+.qrcode-dialog-body .qrcode-grid span:nth-child(even) {
+  background: #e8ecf4;
+}
+
+.qrcode-dialog-text {
+  margin: 1rem 0 0.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2a3a5f;
+}
+
+.qrcode-dialog-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #b0c0d8;
 }
 </style>
