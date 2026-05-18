@@ -5,6 +5,7 @@ services:
     image: mysql:8.0
     container_name: asuka-mysql
     environment:
+      TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_DATABASE: asuka_blog
     ports:
@@ -22,6 +23,8 @@ services:
   backend:
     image: eclipse-temurin:21-jre
     container_name: asuka-backend
+    environment:
+      TZ: Asia/Shanghai
     depends_on:
       mysql:
         condition: service_healthy
@@ -31,7 +34,7 @@ services:
       - ./backend.jar:/app/backend.jar
       - ./application-prod.yml:/app/application-prod.yml
     working_dir: /app
-    command: java -jar -Dspring.profiles.active=prod backend.jar
+    command: java -jar -Dspring.profiles.active=prod -Duser.timezone=Asia/Shanghai backend.jar
     restart: unless-stopped
 
   frontend:
