@@ -4,9 +4,9 @@
             <el-main>
                 <section class="page-shell">
                     <nav :class="['top-nav', { hidden: isNavHidden }]">
-                        <div class="nav-brand">Asuka's Blog</div>
+                        <router-link to="/" class="nav-brand">Asuka's Blog</router-link>
                         <div class="nav-links">
-                            <router-link to="/">首页</router-link>
+                            <router-link to="/" class="home-link">首页</router-link>
                             <div class="nav-dropdown">
                                 <button class="nav-dropdown-btn" @click="toggleDropdown" type="button">
                                     专题
@@ -132,6 +132,7 @@ onUnmounted(() => {
     font-weight: 800;
     color: #3b4d8f;
     letter-spacing: 0.18em;
+    text-decoration: none;
 }
 
 .nav-links {
