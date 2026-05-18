@@ -14,6 +14,7 @@ import com.asuka.backend.service.ArticleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -28,8 +29,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private ArticleMapper articleMapper;
 
-    private final Parser markdownParser = Parser.builder().build();
-    private final HtmlRenderer htmlRenderer = HtmlRenderer.builder().build();
+    private final Parser markdownParser = Parser.builder().extensions(java.util.List.of(TablesExtension.create())).build();
+    private final HtmlRenderer htmlRenderer = HtmlRenderer.builder().extensions(java.util.List.of(TablesExtension.create())).build();
 
 
     @Override

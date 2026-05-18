@@ -35,5 +35,5 @@ CREATE TABLE IF NOT EXISTS blog_admin (
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员表';
 
--- 默认管理员 (密码: admin123)
-INSERT INTO blog_admin (username, password) VALUES ('admin', '$2a$10$j4GyuujZji3DH6X4dgCJhevIQMXYaErEiLFKDxMDQskR4AcmWZ1NG');
+-- 默认管理员 (密码: 870218，BCrypt加密后为$2b$10$l4j1zBiWTXsOg5xyQzeZ2)
+INSERT INTO blog_admin (username, password) VALUES ('admin', '$2b$10$l4j1zBiWTXsOg5xyQzeZ2');
