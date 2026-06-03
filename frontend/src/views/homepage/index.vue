@@ -80,16 +80,8 @@
 
     <el-dialog v-model="showQR" title="联系我" width="320px" align-center>
       <div class="qrcode-dialog-body">
-        <div class="qrcode-placeholder">
-          <div class="qrcode-grid">
-            <span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span>
-          </div>
-        </div>
+        <img src="/img/wx.png" alt="微信" class="wx-qrcode-dialog" />
         <p class="qrcode-dialog-text">扫码添加微信</p>
-        <p class="qrcode-dialog-hint">（待填写）</p>
       </div>
     </el-dialog>
   </div>
@@ -564,34 +556,10 @@ h1 {
   padding: 1rem 0;
 }
 
-.qrcode-dialog-body .qrcode-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.qrcode-dialog-body .qrcode-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  width: 140px;
-  height: 140px;
-  padding: 10px;
-  background: #fff;
-  border: 2px solid #e0e8f0;
+.wx-qrcode-dialog {
+  width: 180px;
   border-radius: 12px;
-}
-
-.qrcode-dialog-body .qrcode-grid span {
-  border-radius: 2px;
-}
-
-.qrcode-dialog-body .qrcode-grid span:nth-child(odd) {
-  background: #2a3a5f;
-}
-
-.qrcode-dialog-body .qrcode-grid span:nth-child(even) {
-  background: #e8ecf4;
+  border: 2px solid #e0e8f0;
 }
 
 .qrcode-dialog-text {
@@ -599,11 +567,5 @@ h1 {
   font-size: 1rem;
   font-weight: 600;
   color: #2a3a5f;
-}
-
-.qrcode-dialog-hint {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #b0c0d8;
 }
 </style>

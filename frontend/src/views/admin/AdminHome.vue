@@ -3,13 +3,13 @@
     <h2 style="margin-top:0;">控制台</h2>
     <p>欢迎回来, {{ adminName }}</p>
     <el-row :gutter="20" style="margin-top:20px;">
-      <el-col :span="8">
+      <el-col :xs="24" :sm="12" :lg="8" style="margin-bottom:16px;">
         <el-card>
           <p style="color:#8a9bb8;margin:0 0 8px;">文章总数</p>
           <p style="font-size:2rem;font-weight:700;margin:0;color:#2a3a5f;">{{ articleCount }}</p>
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="12" :lg="8" style="margin-bottom:16px;">
         <el-card>
           <p style="color:#8a9bb8;margin:0 0 8px;">专题总数</p>
           <p style="font-size:2rem;font-weight:700;margin:0;color:#2a3a5f;">{{ topicCount }}</p>

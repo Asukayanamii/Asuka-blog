@@ -5,23 +5,25 @@
       <el-button type="primary" @click="$router.push('/admin/articles/create')">新增文章</el-button>
     </div>
 
-    <el-table :data="articles" v-loading="loading" stripe border style="width:100%;">
-      <el-table-column prop="id" label="ID" width="60" />
-      <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
-      <el-table-column prop="topicName" label="专题" width="120" />
-      <el-table-column prop="createTime" label="创建时间" width="170" />
-      <el-table-column prop="updateTime" label="更新时间" width="170" />
-      <el-table-column label="操作" width="180" fixed="right">
-        <template #default="{ row }">
-          <el-button size="small" @click="editArticle(row.id)">编辑</el-button>
-          <el-popconfirm title="确定删除此文章？" @confirm="deleteArticle(row.id)">
-            <template #reference>
-              <el-button size="small" type="danger">删除</el-button>
-            </template>
-          </el-popconfirm>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="table-wrapper">
+      <el-table :data="articles" v-loading="loading" stripe border style="width:100%;">
+        <el-table-column prop="id" label="ID" width="60" />
+        <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="topicName" label="专题" width="120" />
+        <el-table-column prop="createTime" label="创建时间" width="170" />
+        <el-table-column prop="updateTime" label="更新时间" width="170" />
+        <el-table-column label="操作" width="180" fixed="right">
+          <template #default="{ row }">
+            <el-button size="small" @click="editArticle(row.id)">编辑</el-button>
+            <el-popconfirm title="确定删除此文章？" @confirm="deleteArticle(row.id)">
+              <template #reference>
+                <el-button size="small" type="danger">删除</el-button>
+              </template>
+            </el-popconfirm>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
 
     <div style="display:flex;justify-content:center;margin-top:20px;">
       <el-pagination
@@ -94,3 +96,16 @@ function onSizeChange(size) {
 
 onMounted(loadArticles)
 </script>
+
+<style scoped>
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+@media (max-width: 768px) {
+  .table-wrapper .el-button {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+}
+</style>

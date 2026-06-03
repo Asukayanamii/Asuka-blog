@@ -5,21 +5,23 @@
       <el-button type="primary" @click="$router.push('/admin/topics/create')">新增专题</el-button>
     </div>
 
-    <el-table :data="topics" v-loading="loading" stripe border style="width:100%;">
-      <el-table-column prop="id" label="ID" width="60" />
-      <el-table-column prop="topicName" label="名称" width="160" />
-      <el-table-column prop="description" label="描述" min-width="300" show-overflow-tooltip />
-      <el-table-column label="操作" width="180" fixed="right">
-        <template #default="{ row }">
-          <el-button size="small" @click="editTopic(row.id)">编辑</el-button>
-          <el-popconfirm title="确定删除此专题？" @confirm="deleteTopic(row.id)">
-            <template #reference>
-              <el-button size="small" type="danger">删除</el-button>
-            </template>
-          </el-popconfirm>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="table-wrapper">
+      <el-table :data="topics" v-loading="loading" stripe border style="width:100%;">
+        <el-table-column prop="id" label="ID" width="60" />
+        <el-table-column prop="topicName" label="名称" width="160" />
+        <el-table-column prop="description" label="描述" min-width="300" show-overflow-tooltip />
+        <el-table-column label="操作" width="180" fixed="right">
+          <template #default="{ row }">
+            <el-button size="small" @click="editTopic(row.id)">编辑</el-button>
+            <el-popconfirm title="确定删除此专题？" @confirm="deleteTopic(row.id)">
+              <template #reference>
+                <el-button size="small" type="danger">删除</el-button>
+              </template>
+            </el-popconfirm>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
   </div>
 </template>
 
@@ -67,3 +69,16 @@ async function deleteTopic(id) {
 
 onMounted(loadTopics)
 </script>
+
+<style scoped>
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+@media (max-width: 768px) {
+  .table-wrapper .el-button {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+}
+</style>

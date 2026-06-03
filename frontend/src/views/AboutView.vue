@@ -1,3 +1,8 @@
+<script setup>
+const contactEmail = import.meta.env.VITE_CONTACT_EMAIL || '3184311912@qq.com'
+const contactGithub = import.meta.env.VITE_CONTACT_GITHUB || 'https://github.com/Asukayanamii'
+</script>
+
 <template>
   <div class="about-page">
     <div class="about-card">
@@ -17,15 +22,11 @@
         <ul class="contact-list">
           <li>
             <span class="label">邮箱</span>
-            <span class="value placeholder">your-email@example.com</span>
+            <span class="value">{{ contactEmail }}</span>
           </li>
           <li>
             <span class="label">GitHub</span>
-            <span class="value placeholder">github.com/your-username</span>
-          </li>
-          <li>
-            <span class="label">博客</span>
-            <span class="value placeholder">your-blog-url.com</span>
+            <a :href="contactGithub" target="_blank" rel="noopener noreferrer" class="value link">{{ contactGithub }}</a>
           </li>
         </ul>
       </div>
@@ -33,13 +34,8 @@
       <div class="info-card">
         <h3>社交平台</h3>
         <div class="qrcode-placeholder">
-          <div class="qrcode-grid">
-            <span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span>
-          </div>
-          <p class="qrcode-label">微信 · 待填写</p>
+          <img src="/img/wx.png" alt="微信" class="wx-qrcode" />
+          <p class="qrcode-label">微信</p>
         </div>
       </div>
     </div>
@@ -148,29 +144,20 @@
   padding: 0.5rem 0;
 }
 
-.qrcode-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  width: 120px;
-  height: 120px;
-  padding: 8px;
-  background: #fff;
-  border: 2px solid #e0e8f0;
+.wx-qrcode {
+  width: 140px;
   border-radius: 12px;
+  border: 2px solid #e0e8f0;
 }
 
-.qrcode-grid span {
-  border-radius: 2px;
-  background: #2a3a5f;
+.value.link {
+  color: #5b7cff;
+  text-decoration: none;
+  word-break: break-all;
 }
 
-.qrcode-grid span:nth-child(odd) {
-  background: #2a3a5f;
-}
-
-.qrcode-grid span:nth-child(even) {
-  background: #e8ecf4;
+.value.link:hover {
+  text-decoration: underline;
 }
 
 .qrcode-label {

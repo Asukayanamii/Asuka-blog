@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 style="margin-top:0;">{{ isEdit ? '编辑专题' : '新增专题' }}</h2>
-    <el-form :model="form" label-width="120px" v-loading="loading">
+    <el-form :model="form" label-width="120px" class="responsive-form" v-loading="loading">
       <el-form-item label="专题名称" required>
         <el-input v-model="form.topicName" placeholder="专题名称" />
       </el-form-item>
@@ -78,3 +78,17 @@ async function save() {
 
 onMounted(loadTopic)
 </script>
+
+<style scoped>
+@media (max-width: 768px) {
+  .responsive-form :deep(.el-form-item__label) {
+    float: none;
+    display: block;
+    text-align: left;
+    padding: 0 0 8px;
+  }
+  .responsive-form :deep(.el-form-item__content) {
+    margin-left: 0 !important;
+  }
+}
+</style>

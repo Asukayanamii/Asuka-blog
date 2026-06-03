@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 style="margin-top:0;">{{ isEdit ? '编辑文章' : '新增文章' }}</h2>
-    <el-form :model="form" label-width="100px" v-loading="loading">
+    <el-form :model="form" label-width="100px" class="responsive-form" v-loading="loading">
       <el-form-item label="标题" required>
         <el-input v-model="form.title" placeholder="文章标题" />
       </el-form-item>
@@ -111,3 +111,17 @@ onMounted(() => {
   loadArticle()
 })
 </script>
+
+<style scoped>
+@media (max-width: 768px) {
+  .responsive-form :deep(.el-form-item__label) {
+    float: none;
+    display: block;
+    text-align: left;
+    padding: 0 0 8px;
+  }
+  .responsive-form :deep(.el-form-item__content) {
+    margin-left: 0 !important;
+  }
+}
+</style>
