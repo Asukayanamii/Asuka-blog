@@ -7,49 +7,30 @@
 | 前端 | 后端 | 部署 |
 |------|------|------|
 | Vue 3.5 + Composition API | Spring Boot 4.0.6 | Docker Compose |
-| Vite 8 | MyBatis + PageHelper | Nginx (静态资源 + API 反向代理) |
-| Element Plus 2.14 | CommonMark 0.21 (Markdown → HTML) | MySQL 8.0 |
-| Vue Router 5 | JWT (jjwt 0.12.6) 鉴权 | eclipse-temurin:21-jre |
-| Axios | BCrypt (spring-security-crypto) | — |
-| — | SpringDoc OpenAPI (Swagger UI) | — |
+| Vite 8 | MyBatis + PageHelper | Nginx（静态资源 + API 反向代理） |
+| Element Plus 2.14 | CommonMark 0.21（Markdown → HTML） | MySQL 8.0 |
+| Vue Router 5 | JWT（jjwt 0.12.6）鉴权 | eclipse-temurin:21-jre |
+| Axios | BCrypt（spring-security-crypto） | — |
 
-## 功能
+## 特性
 
-- **文章浏览** — 首页最新文章展示、按专题筛选、分页查询
-- **文章详情** — Markdown 服务端渲染为 HTML，支持 GFM 表格 / 代码块 / 引用
-- **文件上传** — 支持 Markdown 文件上传发布和 JSON 方式发布
-- **后台管理** — `/admin` 面板，文章与专题的增删改查
-- **登录鉴权** — JWT Token，后端 `/admin/**` 接口受拦截器保护，前端路由守卫自动跳转登录页
-- **配置隔离** — JWT 密钥、数据库连接等敏感配置通过 Spring Profile 分离管理，dev / prod 环境独立
-
-## 配置管理
-
-JWT 密钥通过 `@ConfigurationProperties` 绑定 `blog.jwt.admin-secret-key`，从环境配置文件中读取，不再硬编码于代码中：
-
-```yaml
-# application-dev.yml
-blog:
-  jwt:
-    admin-secret-key: your-dev-secret-key
-
-# application-prod.yml
-blog:
-  jwt:
-    admin-secret-key: your-prod-secret-key
-```
-
-开发环境与生产环境使用独立的配置文件，通过 `spring.profiles.active` 切换。
+- **文章系统** — 支持 Markdown 发布、服务端渲染 HTML、按专题筛选、分页查询
+- **文件上传** — 支持 .md 文件上传发布及 JSON 方式发布
+- **后台管理** — `/admin` 面板，文章与专题的增删改查，响应式适配手机端
+- **登录鉴权** — JWT Token 保护管理端接口，前端路由守卫自动跳转登录页
+- **配置隔离** — JWT 密钥、数据库连接等通过 Spring Profile 分离管理，dev / prod 环境独立
+- **响应式前端** — 前台首页、文章详情、关于页及管理端均适配手机与平板
 
 ## 快速开始
 
 ### 前置条件
 
-- JDK 17+（Docker 部署需 JDK 21，因 PageHelper 4.0.0 编译目标为 Java 21）
+- JDK 17+（Docker 部署需 JDK 21）
 - Node.js 20+
 - MySQL 8.0
 - Maven
 
-### 启动开发环境
+### 本地开发
 
 ```bash
 # 1. 初始化数据库
@@ -68,86 +49,72 @@ npm run dev
 
 前端运行在 `http://localhost:5173`，后端在 `http://localhost:8080`。
 
-Swagger UI 地址：`http://localhost:8080/swagger-ui.html`
+Swagger UI：`http://localhost:8080/swagger-ui.html`
 
 ### Docker 部署
-
-源码根目录执行：
 
 ```bash
 cd deploy
 chmod +x build.sh
-./build.sh           # 自动构建前后端并复制产物
-docker compose up -d
+./build.sh                  # 自动构建前后端并复制产物
+docker compose up -d        # 启动所有服务
 ```
 
 或手动上传 `backend.jar` + `frontend-dist/` + `application-prod.yml` 到服务器 `deploy/` 目录后执行 `docker compose up -d`，访问 `http://服务器IP`。
 
-#### 时区
-
-Docker 容器默认 UTC 时间。若服务器位于东八区，需要在 `docker-compose.yml` 中配置：
-
-```yaml
-services:
-  mysql:
-    environment:
-      TZ: Asia/Shanghai
-  backend:
-    environment:
-      TZ: Asia/Shanghai
-    command: java -jar -Duser.timezone=Asia/Shanghai backend.jar
-```
+> **时区**：Docker 容器默认 UTC。若在东八区请在 `docker-compose.yml` 中配置 `TZ: Asia/Shanghai` 及 `-Duser.timezone=Asia/Shanghai`。
 
 ## 默认账号
 
 | 角色 | 用户名 | 密码 |
 |------|--------|------|
-| 管理员 | admin | 见 `deploy/sql/init.sql` 中 BCrypt 加密值对应的明文 |
+| 管理员 | admin | 见 `deploy/sql/init.sql` BCrypt 值对应明文 |
 | 访客 | — | 无需登录 |
 
 ## 项目结构
 
 ```
 AsukaBlog/
-├── backend/                        # Spring Boot 后端
+├── backend/                          # Spring Boot 后端
 │   └── src/main/java/com/asuka/backend/
 │       ├── controller/
-│       │   ├── user/               # 公开接口（文章浏览、专题列表、文件上传）
-│       │   └── admin/              # 管理接口（JWT 保护）
-│       ├── service/impl/           # 业务逻辑层
-│       ├── mapper/                 # MyBatis Mapper 接口
+│       │   ├── user/                 # 公开接口（文章浏览、专题列表、文件上传）
+│       │   └── admin/                # 管理接口（JWT 保护）
+│       ├── service/impl/             # 业务逻辑层
+│       ├── mapper/                   # MyBatis Mapper 接口
 │       ├── pojo/
-│       │   ├── entity/             # 数据库实体
-│       │   ├── dto/                # 请求参数
-│       │   └── vo/                 # 响应数据
-│       ├── properties/             # @ConfigurationProperties 配置绑定（JWT 等）
-│       ├── utils/                  # JWT 工具类
-│       ├── interceptor/            # JWT Token 拦截器
-│       ├── context/                # ThreadLocal 上下文（当前管理员 ID）
-│       ├── config/                 # WebMVC 拦截器注册
-│       ├── result/                 # 统一响应封装
-│       ├── constant/               # 常量
-│       └── handler/                # 全局异常处理器
-├── frontend/                       # Vue 3 前端
+│       │   ├── entity/               # 数据库实体
+│       │   ├── dto/                  # 请求参数
+│       │   └── vo/                   # 响应数据
+│       ├── properties/               # @ConfigurationProperties 配置绑定
+│       ├── utils/                    # JWT 工具类
+│       ├── interceptor/              # JWT Token 拦截器
+│       ├── context/                  # ThreadLocal 上下文
+│       ├── config/                   # WebMVC 拦截器注册
+│       ├── result/                   # 统一响应封装
+│       ├── constant/                 # 常量
+│       └── handler/                  # 全局异常处理器
+├── frontend/                         # Vue 3 前端
 │   └── src/
 │       ├── views/
-│       │   ├── homepage/           # 首页
-│       │   ├── main/               # 主布局（导航栏、滚动隐藏）
-│       │   ├── articles/           # 文章列表 & 详情
-│       │   └── admin/              # 管理端页面（登录/仪表盘/文章CRUD/专题CRUD）
-│       ├── router/                 # 路由定义 + 导航守卫
-│       ├── composables/            # API 封装（useArticle, useTopics, useAdmin）
-│       ├── utils/                  # Axios 实例 + 请求/响应拦截器
-│       └── data/                   # 静态数据
-└── deploy/                         # 部署文件
+│       │   ├── homepage/             # 首页（Hero、专题、最新文章、联系我）
+│       │   ├── main/                 # 主布局（导航栏、滚动隐藏）
+│       │   ├── articles/             # 文章列表与详情
+│       │   ├── about/                # 关于页（联系方式、社交平台）
+│       │   └── admin/                # 管理端（登录、控制台、文章/专题 CRUD）
+│       ├── router/                   # 路由定义 + 导航守卫
+│       ├── composables/              # API 封装
+│       ├── utils/                    # Axios 实例 + 拦截器
+│       └── data/                     # 静态数据
+└── deploy/                           # 部署文件
     ├── docker-compose.yml
-    ├── build.sh                    # 自动构建脚本
-    ├── nginx/default.conf          # Nginx 反向代理配置
-    ├── sql/init.sql                # 数据库初始化（建表 + 默认管理员）
-    ├── seed-md/                    # 测试文章（Markdown + 批量上传脚本）
-    ├── application-prod.yml        # 生产环境配置
-    ├── backend.jar                 # 构建产物
-    └── frontend-dist/              # 构建产物
+    ├── build.sh                      # 自动构建脚本
+    ├── nginx/default.conf            # Nginx 反向代理配置
+    ├── sql/init.sql                  # 数据库初始化（建表 + 默认管理员）
+    ├── seed-md/                      # 测试文章
+    ├── application-prod.yml          # 生产环境配置
+    ├── backend.jar                   # 构建产物
+    └── frontend-dist/                # 构建产物
 ```
 
 ## API 概览
