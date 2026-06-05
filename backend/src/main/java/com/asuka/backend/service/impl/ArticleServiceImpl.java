@@ -15,7 +15,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
+import org.commonmark.node.Text;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,31 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleMapper articleMapper;
 
     private final Parser markdownParser = Parser.builder().extensions(java.util.List.of(TablesExtension.create())).build();
-    private final HtmlRenderer htmlRenderer = HtmlRenderer.builder().extensions(java.util.List.of(TablesExtension.create())).build();
+
+    private final HtmlRenderer htmlRenderer = HtmlRenderer.builder()
+            .extensions(java.util.List.of(TablesExtension.create()))
+            .attributeProviderFactory(context -> (node, tagName, attributes) -> {
+                if (node instanceof Heading) {
+                    StringBuilder sb = new StringBuilder();
+                    Node child = node.getFirstChild();
+                    while (child != null) {
+                        if (child instanceof Text) {
+                            sb.append(((Text) child).getLiteral());
+                        }
+                        child = child.getNext();
+                    }
+                    String text = sb.toString().strip();
+                    if (!text.isEmpty()) {
+                        String slug = text.toLowerCase()
+                                .replaceAll("[^a-z0-9\\u4e00-\\u9fff\\s-]", "")
+                                .trim()
+                                .replaceAll("\\s+", "-")
+                                .replaceAll("-+", "-");
+                        attributes.put("id", slug);
+                    }
+                }
+            })
+            .build();
 
 
     @Override

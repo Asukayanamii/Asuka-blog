@@ -197,6 +197,7 @@ onMounted(() => {
   margin: 1.8em 0 0.8em;
   color: #1a2a4f;
   letter-spacing: -0.02em;
+  scroll-margin-top: 80px;
 }
 
 .article-body :deep(h1) { font-size: 1.6rem; }
@@ -216,6 +217,13 @@ onMounted(() => {
 .article-body :deep(a) {
   color: #5b7cff;
   text-decoration: underline;
+}
+
+.article-body :deep(h1),
+.article-body :deep(h2),
+.article-body :deep(h3),
+.article-body :deep(h4) {
+  scroll-margin-top: 80px;
 }
 
 .article-body :deep(code) {
