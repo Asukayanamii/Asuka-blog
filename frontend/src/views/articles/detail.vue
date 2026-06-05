@@ -216,7 +216,13 @@ onMounted(() => {
 
 .article-body :deep(a) {
   color: #5b7cff;
-  text-decoration: underline;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.article-body :deep(a:hover) {
+  border-bottom-color: #5b7cff;
 }
 
 .article-body :deep(h1),
