@@ -8,6 +8,10 @@ backend/src/main/resources/application-dev.yml
 *.idea
 frontend/.env
 
+# 备案信息（本地专属文件，请勿提交）
+frontend/public/beian.local.html
+frontend/public/img/
+
 # 前端
 frontend/node_modules/
 frontend/dist/

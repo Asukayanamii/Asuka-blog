@@ -6,6 +6,50 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asuka's Blog</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        background: radial-gradient(circle at top left, rgba(91, 124, 255, 0.12), transparent 28%),
+                    radial-gradient(circle at bottom right, rgba(255, 120, 198, 0.12), transparent 30%),
+                    linear-gradient(135deg, #f0f4ff 0%, #ffe8f5 50%, #f0f8ff 100%);
+        background-attachment: fixed;
+      }
+      #beian-container {
+        display: none;
+      }
+      .beian {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+      }
+      #beian-container.show {
+        display: block;
+        padding: 8px 16px 12px;
+        font-size: 0.82rem;
+        color: #8a9bb8;
+      }
+      #beian-container.show a {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #8a9bb8;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        white-space: nowrap;
+      }
+      #beian-container.show a:hover {
+        color: #5b7cff;
+      }
+      .mps-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>

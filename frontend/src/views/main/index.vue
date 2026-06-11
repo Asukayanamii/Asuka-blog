@@ -33,6 +33,7 @@
                         </div>
                     </nav>
                     <router-view />
+                    <div id="beian-container"></div>
                 </section>
             </el-main>
         </el-container>
@@ -47,8 +48,17 @@ import { loadTopics, topics } from '@/composables/useTopics'
 
 onMounted(async () => {
     const tempTopics = await loadTopics()
-    // console.log('loaded topics', topics.value[0])
-    // sharedTopics.value = tempTopics
+
+    fetch('/beian.local.html')
+        .then(r => r.text())
+        .then(html => {
+            const el = document.getElementById('beian-container');
+            if (el) {
+                el.innerHTML = html;
+                el.classList.add('show');
+            }
+        })
+        .catch(() => {});
 })
 
 const isNavHidden = ref(false)
@@ -103,9 +113,6 @@ onUnmounted(() => {
 .page-shell {
     min-height: 100vh;
     padding: 6rem 0 0;
-    background: radial-gradient(circle at top left, rgba(91, 124, 255, 0.12), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(255, 120, 198, 0.12), transparent 30%),
-        linear-gradient(135deg, #f0f4ff 0%, #ffe8f5 50%, #f0f8ff 100%);
     color: #2a3a5f;
     overflow-x: hidden;
 }
