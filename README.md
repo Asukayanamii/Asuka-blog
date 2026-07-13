@@ -2,7 +2,7 @@
 
 基于 Vue 3 + Spring Boot 4 的个人博客系统。支持 Markdown 文章发布、专题分类、后台管理，通过 Docker Compose 一键部署。
 
-> 在线体验：[http://asukayanami.top](http://asukayanami.top/)
+> 在线体验：[https://asukayanami.top](https://asukayanami.top/)
 
 ## 技术栈
 
