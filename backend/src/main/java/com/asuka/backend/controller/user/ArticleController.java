@@ -2,6 +2,7 @@ package com.asuka.backend.controller.user;
 
 import com.asuka.backend.pojo.dto.ArticlePageQueryDTO;
 import com.asuka.backend.pojo.vo.ArticleDetailVO;
+import com.asuka.backend.pojo.vo.ArticleListVO;
 import com.asuka.backend.result.PageResult;
 import com.asuka.backend.result.Result;
 import com.asuka.backend.service.ArticleService;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
-@Tag(name = "文章管理")
+@Tag(name = "用户端/文章管理")
 @RequestMapping("/user/articles")
 public class ArticleController {
     @Autowired
@@ -22,16 +23,18 @@ public class ArticleController {
 
     @GetMapping("/list")
     @Operation(summary = "获取文章列表")
-    public Result getByTopicPage(ArticlePageQueryDTO articlePageQueryDTO) {
+    public Result<PageResult<ArticleListVO>> getByTopicPage(ArticlePageQueryDTO articlePageQueryDTO) {
         log.info("按专题与标题分页查询文章列表并按时间倒序排序");
-        PageResult pageResult = articleService.getByTopicPage(articlePageQueryDTO);
+        // 用户端与管理端共用分页查询业务，保证列表筛选规则一致。
+        PageResult<ArticleListVO> pageResult = articleService.getByTopicPage(articlePageQueryDTO);
         return Result.success(pageResult);
     }
 
     @GetMapping("/detail")
     @Operation(summary = "获取文章详情")
-    public Result getDetail(Integer id) {
+    public Result<ArticleDetailVO> getDetail(Integer id) {
         log.info("根据ID查询文章详情:{}", id);
+        // 用户端只读取展示详情，不加载编辑用的 Markdown 原文。
         ArticleDetailVO detail = articleService.getDetail(id);
         return Result.success(detail);
     }
