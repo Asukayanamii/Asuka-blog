@@ -5,170 +5,87 @@ const contactGithub = import.meta.env.VITE_CONTACT_GITHUB || 'https://github.com
 
 <template>
   <div class="about-page">
-    <div class="about-card">
-      <div class="avatar-placeholder">
-        <span>Asuka</span>
-      </div>
+    <header class="about-banner">
       <h1>关于我</h1>
-      <p class="bio">
-        一名热爱技术的开发者，
-        这里记录了我的技术学习笔记、项目实战经验以及一些日常思考。
-      </p>
-    </div>
+    </header>
 
-    <div class="info-grid">
-      <div class="info-card">
-        <h3>联系方式</h3>
-        <ul class="contact-list">
-          <li>
-            <span class="label">邮箱</span>
-            <span class="value">{{ contactEmail }}</span>
-          </li>
-          <li>
-            <span class="label">GitHub</span>
-            <a :href="contactGithub" target="_blank" rel="noopener noreferrer" class="value link">{{ contactGithub }}</a>
-          </li>
-        </ul>
-      </div>
+    <main class="about-content">
+      <section class="author-card">
+        <img src="/avatar.jpg" alt="Asuka" class="avatar" />
+        <h2>Asuka</h2>
+        <p class="bio">一名热爱技术的开发者， 这里记录了我的技术学习笔记、项目实战经验以及一些日常思考。</p>
+      </section>
 
-      <div class="info-card">
-        <h3>社交平台</h3>
-        <div class="qrcode-placeholder">
+      <div class="info-grid">
+        <section class="info-card">
+          <h3>联系方式</h3>
+          <ul class="contact-list">
+            <li><span class="label">邮箱</span><span class="value">{{ contactEmail }}</span></li>
+            <li><span class="label">GitHub</span><a :href="contactGithub" target="_blank" rel="noopener noreferrer" class="value link">{{ contactGithub }}</a></li>
+          </ul>
+        </section>
+
+        <section class="info-card social-card">
+          <h3>社交平台</h3>
           <img src="/img/wx.png" alt="微信" class="wx-qrcode" />
-          <p class="qrcode-label">微信</p>
-        </div>
+          <p>微信</p>
+        </section>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <style scoped>
-.about-page {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
-}
-
-.about-card {
-  text-align: center;
-  margin-bottom: 2.5rem;
-}
-
-.avatar-placeholder {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  margin: 0 auto 1.5rem;
-  background: linear-gradient(135deg, #5b7cff 0%, #ff78c6 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 1.4rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-}
-
-.about-card h1 {
-  font-size: 2rem;
-  margin: 0 0 1rem;
-  color: #2a3a5f;
-}
-
-.bio {
-  color: #5a6a8a;
-  line-height: 1.8;
-  font-size: 1.05rem;
-  margin: 0;
-}
-
-.info-grid {
+.about-banner {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  min-height: 310px;
+  padding: 7rem 1.5rem 3rem;
+  color: #fff;
+  text-align: center;
+  place-items: center;
+  background: linear-gradient(rgba(20, 30, 39, 0.42), rgba(20, 30, 39, 0.55)), url('/hero-banner.jpeg') center / cover;
 }
 
+.about-banner h1 {
+  margin: 0;
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+}
+
+.about-content {
+  width: min(820px, calc(100% - 2rem));
+  margin: 2.8rem auto 4rem;
+}
+
+.author-card,
 .info-card {
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 24px;
-  padding: 1.5rem;
-  border: 1px solid rgba(91, 124, 255, 0.12);
-  box-shadow: 0 20px 50px rgba(91, 124, 255, 0.08);
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
 }
 
-.info-card h3 {
-  margin: 0 0 1.2rem;
-  font-size: 1.1rem;
-  color: #2a3a5f;
-}
+.author-card { padding: 2.4rem 1.5rem; text-align: center; }
+.avatar { width: 94px; height: 94px; object-fit: cover; border: 4px solid #fff; border-radius: 50%; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18); }
+.author-card h2 { margin: 1rem 0 0.55rem; color: #333; font-size: 1.35rem; }
+.bio { max-width: 500px; margin: 0 auto; color: #666; font-size: 0.94rem; line-height: 1.9; }
 
-.contact-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+.info-card { padding: 1.5rem; }
+.info-card h3 { margin: 0 0 1rem; color: #333; font-size: 1rem; }
+.contact-list { padding: 0; margin: 0; list-style: none; }
+.contact-list li { display: grid; gap: 0.25rem; padding: 0.8rem 0; border-top: 1px solid var(--blog-line); }
+.label { color: var(--blog-muted); font-size: 0.76rem; }
+.value { color: var(--blog-ink); font-size: 0.88rem; overflow-wrap: anywhere; }
+.link { color: var(--blog-blue); text-decoration: none; }
+.link:hover { text-decoration: underline; }
+.social-card { text-align: center; }
+.social-card h3 { text-align: left; }
+.wx-qrcode { width: 145px; border: 1px solid var(--blog-line); }
+.social-card p { margin: 0.65rem 0 0; color: var(--blog-muted); font-size: 0.82rem; }
 
-.contact-list li {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid rgba(91, 124, 255, 0.08);
-}
-
-.contact-list li:last-child {
-  border-bottom: none;
-}
-
-.label {
-  font-size: 0.8rem;
-  color: #8a9bb8;
-  font-weight: 600;
-}
-
-.value {
-  font-size: 0.9rem;
-  color: #2a3a5f;
-}
-
-.value.placeholder {
-  color: #b0c0d8;
-  font-style: italic;
-}
-
-.qrcode-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.5rem 0;
-}
-
-.wx-qrcode {
-  width: 140px;
-  border-radius: 12px;
-  border: 2px solid #e0e8f0;
-}
-
-.value.link {
-  color: #5b7cff;
-  text-decoration: none;
-  word-break: break-all;
-}
-
-.value.link:hover {
-  text-decoration: underline;
-}
-
-.qrcode-label {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #8a9bb8;
-}
-
-@media (max-width: 640px) {
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 620px) {
+  .about-banner { min-height: 270px; padding-top: 6rem; }
+  .about-content { width: min(100% - 1.25rem, 560px); margin-top: 1.7rem; }
+  .info-grid { grid-template-columns: 1fr; }
 }
 </style>

@@ -1,297 +1,370 @@
-﻿<template>
-    <div class="common-layout">
-        <el-container>
-            <el-main>
-                <section class="page-shell">
-                    <nav :class="['top-nav', { hidden: isNavHidden }]">
-                        <router-link to="/" class="nav-brand">Asuka's Blog</router-link>
-                        <div class="nav-links">
-                            <router-link to="/" class="home-link">首页</router-link>
-                            <div class="nav-dropdown">
-                                <button class="nav-dropdown-btn" @click="toggleDropdown" type="button">
-                                    专题
-                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" :class="{ open: dropdownOpen }">
-                                        <path d="M1 5L7 11L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </button>
-                                <div v-if="dropdownOpen" class="nav-dropdown-menu">
-                                    <div class="categories-list">
-                                        <a v-for="cat in categories" :key="cat.id" href="#" class="category-link" @click.prevent="selectCategory(cat)">
-                                            {{ cat.topicName }}
-                                        </a>
-                                        <div v-if="categories.length === 0" class="empty-hint">暂无栏目</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <router-link to="/articles">最新</router-link>
-                            <router-link to="/about">关于</router-link>
-                            <a href="https://github.com/Asukayanamii/Asuka-blog" target="_blank" rel="noopener noreferrer" class="nav-github" title="GitHub 仓库">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                                </svg>
-                            </a>
-                        </div>
-                    </nav>
-                    <router-view />
-                    <div id="beian-container"></div>
-                </section>
-            </el-main>
-        </el-container>
-    </div>
+<template>
+  <div class="common-layout">
+    <nav :class="['top-nav', { 'top-nav-solid': !isHome || isScrolled, 'menu-open': mobileOpen }]">
+      <router-link to="/" class="nav-brand" @click="mobileOpen = false">Asuka's Blog</router-link>
+
+      <button class="menu-toggle" type="button" aria-label="打开导航" @click="mobileOpen = !mobileOpen">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="nav-links" :class="{ open: mobileOpen }">
+        <router-link to="/" class="home-link" @click="mobileOpen = false">首页</router-link>
+        <div class="nav-dropdown">
+          <button class="nav-dropdown-btn" type="button" @click="toggleDropdown">
+            专题
+            <span class="dropdown-arrow" :class="{ open: dropdownOpen }"></span>
+          </button>
+          <div v-if="dropdownOpen" class="nav-dropdown-menu">
+            <a
+              v-for="cat in categories"
+              :key="cat.id"
+              href="#"
+              class="category-link"
+              @click.prevent="selectCategory(cat)"
+            >{{ cat.topicName }}</a>
+            <div v-if="categories.length === 0" class="empty-hint">暂无栏目</div>
+          </div>
+        </div>
+        <router-link to="/articles" @click="mobileOpen = false">最新</router-link>
+        <router-link to="/about" @click="mobileOpen = false">关于</router-link>
+        <button
+          class="theme-toggle"
+          type="button"
+          :title="isDark ? '切换日间模式' : '切换夜间模式'"
+          :aria-label="isDark ? '切换日间模式' : '切换夜间模式'"
+          @click="toggleTheme"
+        ><span aria-hidden="true">{{ isDark ? '☀' : '☾' }}</span></button>
+        <a
+          href="https://github.com/Asukayanamii/Asuka-blog"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="nav-github"
+          title="GitHub 仓库"
+          aria-label="GitHub 仓库"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" /></svg>
+        </a>
+      </div>
+    </nav>
+
+    <main class="page-shell">
+      <router-view />
+    </main>
+    <div id="beian-container"></div>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { topics as sharedTopics } from '@/data/topics'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { loadTopics, topics } from '@/composables/useTopics'
+import { useTheme } from '@/composables/useTheme'
 
-onMounted(async () => {
-    const tempTopics = await loadTopics()
-
-    fetch('/beian.local.html')
-        .then(r => r.text())
-        .then(html => {
-            const el = document.getElementById('beian-container');
-            if (el) {
-                el.innerHTML = html;
-                el.classList.add('show');
-            }
-        })
-        .catch(() => {});
-})
-
-const isNavHidden = ref(false)
-const dropdownOpen = ref(false)
-const selectedCategory = []
+const route = useRoute()
 const router = useRouter()
-// console.log('selectedCategory', selectedCategory)
+const dropdownOpen = ref(false)
+const mobileOpen = ref(false)
+const isScrolled = ref(false)
+const { isDark, initializeTheme, toggleTheme } = useTheme()
 const categories = computed(() => topics.value)
+const isHome = computed(() => route.name === 'home')
 
-let lastScrollY = 0
-let ticking = false
-
-const toggleDropdown = () => {
+function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value
 }
 
-const selectCategory = (category) => {
+function selectCategory(category) {
   dropdownOpen.value = false
+  mobileOpen.value = false
   router.push({ name: 'articles', query: { topicId: category.id } })
 }
 
-const handleScroll = () => {
-  const currentScroll = window.scrollY
-  if (Math.abs(currentScroll - lastScrollY) < 10) {
-    ticking = false
-    return
-  }
-
-  isNavHidden.value = currentScroll > lastScrollY && currentScroll > 120
-  lastScrollY = currentScroll <= 0 ? 0 : currentScroll
-  ticking = false
+function updateNav() {
+  isScrolled.value = window.scrollY > 32
 }
 
-const onScroll = () => {
-  if (!ticking) {
-    window.requestAnimationFrame(handleScroll)
-    ticking = true
-  }
-}
-
-onMounted(() => {
-  lastScrollY = window.scrollY
-  window.addEventListener('scroll', onScroll, { passive: true })
+watch(() => route.fullPath, () => {
+  dropdownOpen.value = false
+  mobileOpen.value = false
+  updateNav()
 })
 
-onUnmounted(() => {
-  window.removeEventListener('scroll', onScroll)
+onMounted(async () => {
+  initializeTheme()
+  await loadTopics()
+  updateNav()
+  window.addEventListener('scroll', updateNav, { passive: true })
+
+  fetch('/beian.local.html')
+    .then((response) => response.text())
+    .then((html) => {
+      const el = document.getElementById('beian-container')
+      if (el) {
+        el.innerHTML = html
+        el.classList.add('show')
+      }
+    })
+    .catch(() => {})
 })
+
+onUnmounted(() => window.removeEventListener('scroll', updateNav))
 </script>
 
 <style>
+.common-layout {
+  min-height: 100vh;
+  color: var(--blog-ink);
+}
+
 .page-shell {
-    min-height: 100vh;
-    padding: 6rem 0 0;
-    color: #2a3a5f;
-    overflow-x: hidden;
+  min-height: calc(100vh - 48px);
+  overflow: hidden;
 }
 
 .top-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    box-sizing: border-box;
-    z-index: 50;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.85rem 2rem;
-    background: rgba(255, 255, 255, 0.22);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.45);
-    transition: transform 0.3s ease, opacity 0.3s ease;
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 64px;
+  padding: 0 5vw;
+  color: #fff;
+  background: rgba(27, 33, 38, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+  transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.top-nav.hidden {
-    transform: translateY(-100%);
-    opacity: 0;
+.top-nav-solid {
+  color: var(--blog-ink);
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(27, 31, 35, 0.08);
+  backdrop-filter: blur(12px);
 }
 
 .nav-brand {
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: #3b4d8f;
-    letter-spacing: 0.18em;
-    text-decoration: none;
+  color: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-decoration: none;
 }
 
 .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
 }
 
-.nav-links a {
-    text-decoration: none;
-    color: #3b4d8f;
-    font-weight: 600;
-    background: transparent;
-    outline: none;
-    border-radius: 999px;
-    transition: color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+.nav-links > a,
+.nav-dropdown-btn {
+  color: inherit;
+  background: transparent;
+  border: 0;
+  font-size: 0.92rem;
+  line-height: 64px;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-.nav-links a:hover,
-.nav-links a:focus {
-    color: #5b7cff;
-    transform: translateY(-1px);
-    background: transparent;
-}
-
-.nav-links a:focus-visible {
-    outline: 2px solid rgba(91, 124, 255, 0.3);
-    outline-offset: 3px;
+.nav-links > a.router-link-exact-active,
+.nav-links > a:hover,
+.nav-dropdown-btn:hover {
+  color: var(--blog-blue);
 }
 
 .nav-dropdown {
-    position: relative;
+  position: relative;
 }
 
 .nav-dropdown-btn {
-    background: transparent;
-    border: none;
-    color: #3b4d8f;
-    font-weight: 600;
-    font-size: 1rem;
-    padding: 0.4rem 0.6rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    transition: color 0.2s ease, transform 0.2s ease;
-    border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
 }
 
-.nav-dropdown-btn svg {
-    transition: transform 0.2s ease;
+.dropdown-arrow {
+  width: 7px;
+  height: 7px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.2s ease;
 }
 
-.nav-dropdown-btn svg.open {
-    transform: rotate(180deg);
-}
-
-.nav-dropdown-btn:hover {
-    color: #5b7cff;
-    transform: translateY(-1px);
-}
-
-.nav-dropdown-btn:focus-visible {
-    outline: 2px solid rgba(91, 124, 255, 0.3);
-    outline-offset: 3px;
+.dropdown-arrow.open {
+  transform: rotate(225deg) translate(-2px, -2px);
 }
 
 .nav-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 0.85rem);
-    right: 0;
-    width: 260px;
-    background: transparent;
-    border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(91, 124, 255, 0.15);
-    border: 1px solid rgba(91, 124, 255, 0.1);
-    z-index: 100;
-    animation: slideDown 0.2s ease;
+  position: absolute;
+  top: calc(100% - 8px);
+  right: -1rem;
+  width: 210px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 0.45rem 0;
+  color: var(--blog-ink);
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(27, 31, 35, 0.16);
 }
 
-.common-layout .el-main {
-    padding: 0;
+.category-link,
+.empty-hint {
+  display: block;
+  padding: 0.65rem 1rem;
+  color: var(--blog-ink);
+  font-size: 0.88rem;
+  text-decoration: none;
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.categories-list {
-    max-height: 240px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 0.5rem 0;
-}
-
-.categories-list::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-}
-
-.categories-list {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
-.category-link {
-    display: block;
-    padding: 0.85rem 1rem;
-    color: #5a6a8a;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(91, 124, 255, 0.05);
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.category-link:last-child {
-    border-bottom: none;
-}
-
-.category-link:hover,
-.category-link:focus {
-    background-color: rgba(91, 124, 255, 0.08);
-    color: #3b4d8f;
+.category-link:hover {
+  color: #fff;
+  background: var(--blog-blue);
 }
 
 .empty-hint {
-    padding: 1rem;
-    text-align: center;
-    color: #9a9faa;
-    font-size: 0.9rem;
-    font-style: italic;
+  color: var(--blog-muted);
+  text-align: center;
 }
 
 .nav-github {
-    display: flex;
-    align-items: center;
-    color: #3b4d8f;
-    transition: color 0.2s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  height: 64px;
 }
 
-.nav-github:hover {
-    color: #5b7cff;
-    transform: translateY(-1px);
+.theme-toggle {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  line-height: 1;
+  place-items: center;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--blog-blue);
+  background: rgba(73, 177, 245, 0.12);
+}
+
+.nav-github svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.menu-toggle {
+  display: none;
+  width: 38px;
+  height: 38px;
+  padding: 8px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+}
+
+.menu-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  margin: 4px auto;
+  background: currentColor;
+}
+
+#beian-container {
+  display: flex;
+  justify-content: center;
+  min-height: 48px;
+  padding: 1rem;
+  color: #858585;
+  background: #fff;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 680px) {
+  .top-nav {
+    min-height: 56px;
+    padding: 0 1.1rem;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 56px;
+    right: 0;
+    left: 0;
+    display: none;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.45rem 1.1rem 0.8rem;
+    color: var(--blog-ink);
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 8px 16px rgba(27, 31, 35, 0.12);
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links > a,
+  .nav-dropdown-btn,
+  .nav-github,
+  .theme-toggle {
+    height: 42px;
+    line-height: 42px;
+  }
+
+  .theme-toggle {
+    width: 42px;
+  }
+
+  .nav-dropdown-menu {
+    position: static;
+    width: 100%;
+    max-height: 190px;
+    margin-bottom: 0.35rem;
+    box-shadow: none;
+    border: 1px solid var(--blog-line);
+  }
+}
+
+html[data-theme='dark'] .top-nav-solid {
+  color: #d8e0e6;
+  background: rgba(27, 31, 35, 0.96);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme='dark'] .nav-dropdown-menu {
+  color: #d8e0e6;
+  background: #20262b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.36);
+}
+
+html[data-theme='dark'] .category-link {
+  color: #d8e0e6;
+}
+
+@media (max-width: 680px) {
+  html[data-theme='dark'] .nav-links {
+    color: #d8e0e6;
+    background: rgba(27, 31, 35, 0.96);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
 }
 </style>

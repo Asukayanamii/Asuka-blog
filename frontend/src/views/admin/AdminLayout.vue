@@ -7,6 +7,13 @@
     <el-aside :class="['admin-aside', { 'mobile-show': mobileMenuOpen }]">
       <div class="admin-logo">
         <span>AsukaBlog Admin</span>
+        <button
+          class="theme-toggle"
+          type="button"
+          :title="isDark ? '切换日间模式' : '切换夜间模式'"
+          :aria-label="isDark ? '切换日间模式' : '切换夜间模式'"
+          @click="toggleTheme"
+        >{{ isDark ? '☀' : '☾' }}</button>
         <button class="close-btn" @click="mobileMenuOpen = false">&times;</button>
       </div>
       <el-menu
@@ -51,10 +58,12 @@
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { DataBoard, Document, Collection } from '@element-plus/icons-vue'
+import { useTheme } from '@/composables/useTheme'
 
 const router = useRouter()
 const route = useRoute()
 const mobileMenuOpen = ref(false)
+const { isDark, toggleTheme } = useTheme()
 
 function onMenuSelect() {
   mobileMenuOpen.value = false
@@ -99,6 +108,24 @@ function handleLogout() {
   font-size: 1.5rem;
   cursor: pointer;
   line-height: 1;
+}
+.theme-toggle {
+  position: absolute;
+  right: 12px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: #fff;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  line-height: 1;
+  place-items: center;
+}
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 .logout-area {
   position: absolute;
@@ -160,6 +187,9 @@ function handleLogout() {
   }
   .close-btn {
     display: block;
+  }
+  .theme-toggle {
+    right: 44px;
   }
   .mobile-header {
     display: flex;
