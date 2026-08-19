@@ -1,6 +1,5 @@
 package com.asuka.backend.controller.user;
 
-import com.asuka.backend.pojo.entity.Topic;
 import com.asuka.backend.pojo.vo.TopicVO;
 import com.asuka.backend.result.Result;
 import com.asuka.backend.service.TopicService;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 
 @RestController
 @Slf4j
-@Tag(name = "专题管理")
+@Tag(name = "用户端/专题管理")
 @RequestMapping("/user/topics")
 public class TopicController {
     @Autowired
@@ -25,8 +24,9 @@ public class TopicController {
 
     @GetMapping("/list")
     @Operation(summary = "获取所有专题")
-    public Result getAll() {
+    public Result<ArrayList<TopicVO>> getAll() {
         log.info("获取所有专题");
+        // 专题查询由 service 统一封装，用户端只负责返回标准响应。
         ArrayList<TopicVO> list = topicService.getAll();
         return Result.success(list);
     }

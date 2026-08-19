@@ -31,3 +31,7 @@ deploy/frontend-dist/
 deploy/application-prod.yml
 deploy/seed-md/
 deploy/.env
+/deploy/img/wx.png
+/deploy/img/备案图标.png
+/.m2/org/springframework/boot/spring-boot-starter-parent/4.0.6/spring-boot-starter-parent-4.0.6.pom.lastUpdated
+/deploy/beian.local.html

@@ -15,18 +15,18 @@ import java.sql.SQLIntegrityConstraintViolationException;
 public class GlobalExceptionHandler {
     @Operation(summary = "全局异常处理")
     @ExceptionHandler
-    public Result exceptionHandler(Exception ex){
+    public Result<Void> exceptionHandler(Exception ex){
         log.error("异常信息：{}", ex.getMessage());
         return Result.error("未知错误");
     }
 
     @ExceptionHandler
-    public Result exceptionHandler(BaseException ex){
+    public Result<Void> exceptionHandler(BaseException ex){
         log.error("异常信息：{}", ex.getMessage());
         return Result.error(ex.getMessage());
     }
     @ExceptionHandler
-    public Result exceptionHandler(SQLIntegrityConstraintViolationException ex){
+    public Result<Void> exceptionHandler(SQLIntegrityConstraintViolationException ex){
         log.error("异常信息：{}", ex.getMessage());
         if (ex.getMessage().contains("Duplicate entry")) {
             String[] split = ex.getMessage().split(" ");
