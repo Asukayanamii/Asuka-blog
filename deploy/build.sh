@@ -1,19 +1,32 @@
-#!/bin/bash
-# 构建前后端并复制产物到 deploy 目录
+#!/usr/bin/env bash
+# Build deployable backend and frontend artifacts from any working directory.
 
-set -e
+set -euo pipefail
 
-echo "=== 构建后端 ==="
-cd ../backend
-mvn package -DskipTests -q
-cp target/backend-0.0.1-SNAPSHOT.jar ../deploy/backend.jar
-echo "✅ 后端构建完成"
+DEPLOY_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$DEPLOY_DIR")"
+BACKEND_DIR="$PROJECT_DIR/backend"
+FRONTEND_DIR="$PROJECT_DIR/frontend"
 
-echo "=== 构建前端 ==="
-cd ../frontend
-npm run build > /dev/null 2>&1
-rm -rf ../deploy/frontend-dist
-cp -r dist ../deploy/frontend-dist
-echo "✅ 前端构建完成"
+if [[ ! -f "$DEPLOY_DIR/application-prod.yml" ]]; then
+  echo "Missing deploy/application-prod.yml. Copy application-prod.yml.example and set production values first." >&2
+  exit 1
+fi
 
-echo "=== 构建完成，可以执行 docker compose up -d ==="
+echo "Building backend..."
+(
+  cd "$BACKEND_DIR"
+  mvn package -DskipTests -q
+)
+cp "$BACKEND_DIR/target/backend-0.0.1-SNAPSHOT.jar" "$DEPLOY_DIR/backend.jar"
+
+echo "Building frontend..."
+(
+  cd "$FRONTEND_DIR"
+  npm ci --no-audit --no-fund
+  npm run build
+)
+rm -rf "$DEPLOY_DIR/frontend-dist"
+cp -R "$FRONTEND_DIR/dist" "$DEPLOY_DIR/frontend-dist"
+
+echo "Build complete. Run: cd deploy && docker compose up -d"

@@ -1,5 +1,12 @@
 <template>
   <div class="login-container">
+    <button
+      class="theme-toggle"
+      type="button"
+      :title="isDark ? '切换日间模式' : '切换夜间模式'"
+      :aria-label="isDark ? '切换日间模式' : '切换夜间模式'"
+      @click="toggleTheme"
+    >{{ isDark ? '☀' : '☾' }}</button>
     <el-card class="login-card">
       <template #header>
         <h2 style="text-align:center;margin:0;">AsukaBlog 管理登录</h2>
@@ -28,11 +35,13 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 import { adminLogin } from '@/composables/useAdmin'
+import { useTheme } from '@/composables/useTheme'
 
 const router = useRouter()
 const loading = ref(false)
 const errorMsg = ref('')
 const form = reactive({ username: '', password: '' })
+const { isDark, toggleTheme } = useTheme()
 
 async function handleLogin() {
   if (!form.username || !form.password) {
@@ -60,6 +69,7 @@ async function handleLogin() {
 
 <style scoped>
 .login-container {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -71,5 +81,26 @@ async function handleLogin() {
 .login-card {
   width: 400px;
   max-width: 100%;
+}
+.theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: #4c4948;
+  background: rgba(255, 255, 255, 0.76);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  font-size: 1.35rem;
+  line-height: 1;
+  place-items: center;
+}
+:global(html[data-theme='dark']) .theme-toggle {
+  color: #d8e0e6;
+  background: #2a3137;
 }
 </style>

@@ -1,66 +1,63 @@
 <template>
   <div class="articles-page">
-    <div class="page-header">
-      <span class="eyebrow">{{ currentTopic ? currentTopic.topicName : '最新文章' }}</span>
-      <h1>
-        {{ currentTopic ? currentTopic.topicName + ' 专题' : '文章总览' }}
+    <header class="page-banner">
+      <div>
+        <p>{{ currentTopic ? currentTopic.topicName : '最新文章' }}</p>
+        <h1>{{ currentTopic ? currentTopic.topicName + ' 专题' : '文章总览' }}</h1>
+        <p class="page-description">{{ currentTopic ? currentTopic.description || '浏览该专题下的所有技术文章。' : '浏览所有技术文章，涵盖前端、后端、工具与设计灵感。' }}</p>
         <router-link v-if="currentTopic" to="/articles" class="clear-filter">全部文章</router-link>
-      </h1>
-      <p class="page-description">{{ currentTopic ? currentTopic.description || '浏览该专题下的所有技术文章。' : '浏览所有技术文章，涵盖前端、后端、工具与设计灵感。' }}</p>
-    </div>
-
-    <div v-if="loading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>加载中...</p>
-    </div>
-
-    <template v-else>
-      <div v-if="articles.length === 0" class="empty-state">
-        <p>暂无文章</p>
       </div>
+    </header>
 
-      <div v-for="article in articles" :key="article.id" class="article-card" @click="goToDetail(article.id)">
-        <div class="card-header">
-          <span class="article-tag">{{ article.topicName }}</span>
-          <span class="article-date">{{ formatDate(article.updateTime) }}</span>
-        </div>
-        <h2 class="article-title">{{ article.title }}</h2>
-        <p class="article-summary">{{ article.summary || '暂无摘要' }}</p>
-        <div class="card-footer">
-          <div class="meta">
-            <span class="meta-item">创建于 {{ formatDate(article.createTime) }}</span>
-            <span class="meta-divider">·</span>
-            <span class="meta-item">更新于 {{ formatDate(article.updateTime) }}</span>
+    <section class="archive-shell">
+      <div v-if="loading" class="loading-state"><span></span><p>加载中...</p></div>
+
+      <template v-else>
+        <div v-if="articles.length === 0" class="empty-state"><p>暂无文章</p></div>
+
+        <router-link
+          v-for="article in articles"
+          :key="article.id"
+          :to="{ name: 'articleDetail', params: { id: article.id } }"
+          class="archive-item"
+        >
+          <time>{{ formatDate(article.updateTime) }}</time>
+          <div class="archive-dot"></div>
+          <div class="archive-content">
+            <span class="article-tag">{{ article.topicName }}</span>
+            <h2>{{ article.title }}</h2>
+            <p>{{ article.summary || '暂无摘要' }}</p>
+            <div class="article-meta">
+              <span>创建于 {{ formatDate(article.createTime) }}</span>
+              <span>更新于 {{ formatDate(article.updateTime) }}</span>
+            </div>
           </div>
-          <span class="read-more">阅读详情 →</span>
-        </div>
-      </div>
+        </router-link>
 
-      <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="pageNum"
-          v-model:page-size="pageSize"
-          :total="total"
-          :page-sizes="[5, 10, 15, 20, 30, 40, 50]"
-          layout="total, sizes, prev, pager, next"
-          @current-change="onPageChange"
-          @size-change="onSizeChange"
-          background
-        />
-      </div>
-    </template>
+        <div class="pagination-wrapper">
+          <el-pagination
+            v-model:current-page="pageNum"
+            v-model:page-size="pageSize"
+            :total="total"
+            :page-sizes="[5, 10, 15, 20, 30, 40, 50]"
+            layout="total, sizes, prev, pager, next"
+            @current-change="onPageChange"
+            @size-change="onSizeChange"
+            background
+          />
+        </div>
+      </template>
+    </section>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { getArticles } from '@/composables/useArticle'
 import { topics as allTopics } from '@/composables/useTopics'
 
-const router = useRouter()
 const route = useRoute()
-
 const articles = ref([])
 const loading = ref(true)
 const pageNum = ref(1)
@@ -69,32 +66,15 @@ const total = ref(0)
 
 const currentTopic = computed(() => {
   const topicId = route.query.topicId
-  if (!topicId) return null
-  return allTopics.value.find(t => t.id === Number(topicId)) || null
+  return topicId ? allTopics.value.find((topic) => topic.id === Number(topicId)) || null : null
 })
 
 async function loadArticles() {
   loading.value = true
-  try {
-    const topicId = route.query.topicId || null
-    const result = await getArticles(pageNum.value, pageSize.value, topicId, null)
-    if (result && result.records) {
-      articles.value = result.records
-      total.value = result.total || 0
-    } else {
-      articles.value = []
-      total.value = 0
-    }
-  } catch (error) {
-    console.error('Failed to load articles', error)
-    articles.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-function goToDetail(id) {
-  router.push({ name: 'articleDetail', params: { id } })
+  const result = await getArticles(pageNum.value, pageSize.value, route.query.topicId || null, null)
+  articles.value = result?.records || []
+  total.value = result?.total || 0
+  loading.value = false
 }
 
 function onPageChange(page) {
@@ -110,13 +90,13 @@ function onSizeChange(size) {
 
 function formatDate(dateStr) {
   if (!dateStr) return ''
-  const d = new Date(dateStr)
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const h = String(d.getHours()).padStart(2, '0')
-  const min = String(d.getMinutes()).padStart(2, '0')
-  return `${y}-${m}-${day} ${h}:${min}`
+  const date = new Date(dateStr)
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  const h = String(date.getHours()).padStart(2, '0')
+  const min = String(date.getMinutes()).padStart(2, '0')
+  return `${y}-${m}-${d} ${h}:${min}`
 }
 
 watch(() => route.query.topicId, () => {
@@ -124,225 +104,107 @@ watch(() => route.query.topicId, () => {
   loadArticles()
 })
 
-onMounted(() => {
-  loadArticles()
-})
+onMounted(loadArticles)
 </script>
 
 <style scoped>
-.articles-page {
-  width: 100%;
-  padding: 2rem 1.5rem 4rem;
-  box-sizing: border-box;
+.page-banner {
+  position: relative;
+  display: grid;
+  min-height: 310px;
+  padding: 7rem 1.5rem 3rem;
+  color: #fff;
+  text-align: center;
+  place-items: center;
+  background: linear-gradient(rgba(20, 30, 39, 0.42), rgba(20, 30, 39, 0.55)), url('/hero-banner.jpeg') center / cover;
 }
 
-.page-header {
-  margin-bottom: 2.5rem;
-}
-
-.eyebrow {
-  display: inline-block;
-  margin-bottom: 0.8rem;
-  padding: 0.45rem 1rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(91, 124, 255, 0.15), rgba(255, 120, 198, 0.15));
-  color: #5b7cff;
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
-.page-header h1 {
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  margin: 0 0 0.6rem;
-  letter-spacing: -0.03em;
-  color: #2a3a5f;
-}
-
-.page-description {
-  color: #4a5a7f;
-  font-size: 1.05rem;
-  line-height: 1.7;
-  margin: 0;
-}
+.page-banner > div { max-width: 780px; }
+.page-banner p { margin: 0 0 0.7rem; font-size: 0.94rem; }
+.page-banner h1 { margin: 0; font-family: 'Noto Serif SC', serif; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.3; }
+.page-banner .page-description { margin-top: 1rem; line-height: 1.8; }
 
 .clear-filter {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-  margin-left: 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #5b7cff;
-  text-decoration: none;
-  padding: 0.2rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid rgba(91, 124, 255, 0.25);
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.clear-filter:hover {
-  background: rgba(91, 124, 255, 0.08);
-  border-color: #5b7cff;
-}
-
-.loading-state,
-.empty-state {
-  text-align: center;
-  padding: 4rem 1rem;
-  color: #4a5a7f;
-}
-
-.loading-spinner {
-  width: 36px;
-  height: 36px;
-  margin: 0 auto 1rem;
-  border: 3px solid rgba(91, 124, 255, 0.2);
-  border-top-color: #5b7cff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.article-card {
-  padding: 1.8rem 1.2rem;
-  margin-bottom: 1.5rem;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 20px 50px rgba(91, 124, 255, 0.08);
-  border: 1px solid rgba(91, 124, 255, 0.12);
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.article-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 28px 60px rgba(91, 124, 255, 0.15);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.8rem;
-}
-
-.article-tag {
-  display: inline-flex;
-  padding: 0.4rem 0.8rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(91, 124, 255, 0.12), rgba(255, 120, 198, 0.12));
-  color: #5b7cff;
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-.article-date {
-  color: #8a9bb8;
-  font-size: 0.85rem;
-}
-
-.article-title {
-  font-size: 1.35rem;
-  margin: 0 0 0.6rem;
-  color: #2a3a5f;
-  letter-spacing: -0.02em;
-}
-
-.article-summary {
-  color: #5a6a8a;
-  line-height: 1.7;
-  margin: 0 0 1.2rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.meta {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.meta-item {
-  font-size: 0.82rem;
-  color: #8a9bb8;
-}
-
-.meta-divider {
-  color: #c0cfe0;
-}
-
-.read-more {
-  color: #5b7cff;
-  font-weight: 700;
-  font-size: 0.9rem;
-  transition: transform 0.2s ease;
-}
-
-.article-card:hover .read-more {
-  transform: translateX(4px);
-}
-
-.pagination-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 2.5rem;
-}
-
-.pagination-wrapper :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
-  background: #5b7cff;
-  border: none;
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.4rem 0.85rem;
   color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 3px;
+  font-size: 0.85rem;
+  text-decoration: none;
 }
 
-.pagination-wrapper :deep(.el-pagination.is-background .el-pager li:hover) {
-  color: #5b7cff;
+.archive-shell {
+  width: min(900px, calc(100% - 2rem));
+  margin: 2.8rem auto 4rem;
 }
 
-.pagination-wrapper :deep(.el-pagination.is-background .btn-prev:not(.is-disabled):hover),
-.pagination-wrapper :deep(.el-pagination.is-background .btn-next:not(.is-disabled):hover) {
-  color: #5b7cff;
+.archive-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 144px 28px minmax(0, 1fr);
+  padding-bottom: 1.7rem;
+  color: var(--blog-ink);
+  text-decoration: none;
 }
 
-.pagination-wrapper :deep(.el-pagination .el-select .el-input .el-input__wrapper:hover) {
-  box-shadow: 0 0 0 1px #5b7cff inset;
+.archive-item::before {
+  position: absolute;
+  top: 24px;
+  bottom: 0;
+  left: 157px;
+  width: 2px;
+  background: #dce5eb;
+  content: '';
 }
 
-.pagination-wrapper :deep(.el-pagination__total),
-.pagination-wrapper :deep(.el-pagination__sizes .el-input .el-input__inner) {
-  color: #4a5a7f;
-  font-weight: 500;
+.archive-item:last-of-type::before { display: none; }
+.archive-item time { padding-top: 0.36rem; color: var(--blog-muted); font-size: 0.85rem; text-align: right; }
+
+.archive-dot {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  margin: 0.55rem auto 0;
+  background: var(--blog-blue);
+  border: 3px solid #eaf6fe;
+  border-radius: 50%;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
-@media (max-width: 640px) {
-  .articles-page {
-    padding: 1.5rem 1rem 3rem;
-  }
+.archive-content {
+  padding: 1.35rem 1.5rem;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-  .article-card {
-    padding: 1.3rem;
-  }
+.archive-item:hover .archive-content { transform: translateX(5px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12); }
+.archive-item:hover .archive-dot { background: var(--blog-blue-deep); transform: scale(1.18); }
+.article-tag { color: var(--blog-blue); font-size: 0.78rem; }
+.archive-content h2 { margin: 0.35rem 0 0.7rem; color: #333; font-size: 1.2rem; line-height: 1.45; }
+.archive-content p { display: -webkit-box; margin: 0; overflow: hidden; color: #666; font-size: 0.88rem; line-height: 1.75; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.article-meta { display: flex; gap: 0.85rem; margin-top: 0.75rem; color: var(--blog-muted); font-size: 0.76rem; }
 
-  .article-title {
-    font-size: 1.15rem;
-  }
+.loading-state, .empty-state { padding: 5rem 1rem; color: var(--blog-muted); text-align: center; }
+.loading-state span { display: block; width: 28px; height: 28px; margin: 0 auto 0.75rem; border: 3px solid #dcecf8; border-top-color: var(--blog-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  .card-footer {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.pagination-wrapper { display: flex; justify-content: center; margin-top: 1rem; }
+.pagination-wrapper :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) { background: var(--blog-blue); }
+.pagination-wrapper :deep(.el-pagination.is-background .el-pager li:hover), .pagination-wrapper :deep(.el-pagination button:hover) { color: var(--blog-blue); }
+
+@media (max-width: 600px) {
+  .page-banner { min-height: 270px; padding-top: 6rem; }
+  .archive-shell { width: min(100% - 1.25rem, 560px); margin-top: 1.7rem; }
+  .archive-item { grid-template-columns: 22px minmax(0, 1fr); }
+  .archive-item::before { left: 10px; }
+  .archive-item time { grid-column: 2; grid-row: 1; padding: 0 0 0.45rem; text-align: left; }
+  .archive-dot { grid-column: 1; grid-row: 1 / span 2; margin-top: 0.28rem; }
+  .archive-content { grid-column: 2; grid-row: 2; padding: 1.1rem; }
+  .article-meta { flex-direction: column; gap: 0.25rem; }
 }
 </style>

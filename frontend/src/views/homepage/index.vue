@@ -1,82 +1,117 @@
 ﻿<template>
   <div class="home-content">
-    <div class="hero">
+    <header class="hero" id="top">
+      <div class="hero-shade"></div>
       <div class="hero-copy">
-        <p class="eyebrow">技术日志</p>
+        <p class="eyebrow">技术笔记</p>
         <h1>在这里记录前端、后端与设计的幻想</h1>
-        <p class="hero-description">
-          这里是Asuka的技术小天地，兼具开发力。包含文章、工具、部署笔记与灵感合集。
-        </p>
+        <p class="hero-description">这里是技术天地，兼具开发力。包含文章、工具、部署笔记与灵感合集。</p>
         <div class="hero-actions">
-          <router-link to="/articles" class="btn btn-primary">浏览最新文章</router-link>
-          <a href="#topics" class="btn btn-secondary">探索专题</a>
+          <router-link to="/articles" class="hero-button">浏览最新文章</router-link>
+          <a href="#topics" class="hero-button hero-button-quiet">探索专题</a>
         </div>
       </div>
+      <a href="#posts" class="scroll-down" aria-label="向下滚动"><span></span></a>
+    </header>
 
-      <div class="hero-visual">
-        <div class="floating-card">
-          <div class="screen-header">
-            <span></span><span></span><span></span>
-          </div>
-          <div class="screen-body">
-            <div class="code-line line-1"></div>
-            <div class="code-line line-2"></div>
-            <div class="code-line line-3"></div>
-            <div class="code-line line-4"></div>
-          </div>
-        </div>
-        <div class="petal petal-1"></div>
-        <div class="petal petal-2"></div>
-        <div class="petal petal-3"></div>
-        <div class="petal petal-4"></div>
-      </div>
-    </div>
-
-    <section id="topics" class="features">
-      <div class="section-header">
-        <span>内容分类</span>
-        <h2>技术专题</h2>
-      </div>
-      <el-scrollbar class="topic-scrollbar" wrap-style="overflow-x:auto; overflow-y:hidden;">
-        <div class="topic-scroll-inner">
-          <router-link v-for="topic in topics" :key="topic.id" :to="{ name: 'articles', query: { topicId: topic.id } }" class="feature-card">
-            <h3>{{ topic.topicName }}</h3>
-            <p>{{ topic.description }}</p>
-          </router-link>
-        </div>
-      </el-scrollbar>
-    </section>
-
-    <section id="posts" class="posts">
-      <div class="posts-heading">
-        <div>
+    <div class="home-layout">
+      <section id="posts" class="recent-posts" aria-label="最近发布的文章">
+        <div class="posts-heading">
           <span>最新更新</span>
           <h2>最近发布的文章</h2>
+          <p>技术日志，带你阅读技术与创作心得。</p>
         </div>
-        <p>技术日志，带你阅读技术与创作心得。</p>
-      </div>
-
-      <el-scrollbar class="post-scrollbar" wrap-style="overflow-x:auto; overflow-y:hidden;">
-        <div class="post-scroll-inner">
-          <router-link v-for="post in posts" :key="post.id" :to="{ name: 'articleDetail', params: { id: post.id } }" class="post-card">
-            <span class="post-tag">{{ post.topicName }}</span>
-            <h3>{{ post.title }}</h3>
-            <p>{{ post.summary }}</p>
-            <span class="read-link">阅读详情 →</span>
+        <div v-if="loading" class="loading-state"><span></span><p>加载中...</p></div>
+        <template v-else>
+          <router-link
+            v-for="(post, index) in posts"
+            :key="post.id"
+            :to="{ name: 'articleDetail', params: { id: post.id } }"
+            class="recent-post-item"
+          >
+            <div class="post-cover" :class="{ right: index % 2 === 1 }">
+              <img src="/hero-banner.jpeg" :alt="post.title" />
+            </div>
+            <div class="recent-post-info">
+              <h2>{{ post.title }}</h2>
+              <div class="article-meta">
+                <span>创建于 {{ formatDate(post.createTime) }}</span>
+                <span class="meta-divider">|</span>
+                <span>{{ post.topicName }}</span>
+              </div>
+              <p>{{ post.summary }}</p>
+              <span class="read-link">阅读详情 →</span>
+            </div>
           </router-link>
-        </div>
-      </el-scrollbar>
-    </section>
+          <div v-if="posts.length === 0" class="empty-state"><p>暂无文章</p></div>
+        </template>
+      </section>
 
-    <section class="subscribe">
-      <div class="subscribe-card">
-        <div>
+      <aside class="home-aside">
+        <section class="aside-card profile-card" aria-label="个人信息">
+          <div class="profile-heading">
+            <a
+              :href="contactGithub"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="profile-avatar-link"
+              title="访问 GitHub 主页"
+            >
+              <img src="/avatar.jpg" alt="Asuka 的头像" class="profile-avatar" />
+            </a>
+            <h2>Asuka</h2>
+          </div>
+          <p class="profile-bio">一名热爱技术的开发者，记录技术学习、项目实践与日常思考。</p>
+          <a
+            :href="contactGithub"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="github-profile-link"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" /></svg>
+            <span>github.com/Asukayanamii</span>
+            <span class="external-mark" aria-hidden="true">↗</span>
+          </a>
+          <div class="profile-stats" aria-label="博客统计">
+            <router-link to="/articles" class="profile-stat" title="查看全部文章">
+              <strong>{{ articleTotal }}</strong>
+              <span>文章</span>
+            </router-link>
+            <a href="#topics" class="profile-stat" title="查看全部分类">
+              <strong>{{ topics.length }}</strong>
+              <span>分类</span>
+            </a>
+          </div>
+        </section>
+
+        <section id="topics" class="aside-card topic-card">
+          <div class="topic-heading">
+            <div>
+              <p class="aside-kicker">内容分类</p>
+              <h2>技术专题</h2>
+            </div>
+            <router-link to="/articles" class="topic-total" title="查看全部文章">{{ articleTotal }} 篇</router-link>
+          </div>
+          <router-link
+            v-for="topic in topics"
+            :key="topic.id"
+            :to="{ name: 'articles', query: { topicId: topic.id } }"
+            class="topic-link"
+          >
+            <span class="topic-name">{{ topic.topicName }}</span>
+            <b class="topic-count">{{ topicCounts[topic.id] ?? 0 }}</b>
+            <small>{{ topic.description }}</small>
+          </router-link>
+          <p v-if="topics.length === 0" class="aside-empty">暂无栏目</p>
+        </section>
+
+        <section class="aside-card subscribe-card">
           <p>加入友链</p>
           <h2>共享你的技术笔记</h2>
-        </div>
-        <button type="button" @click="showQR = true">联系我</button>
-      </div>
-    </section>
+          <button type="button" @click="showQR = true">联系我</button>
+        </section>
+      </aside>
+    </div>
 
     <el-dialog v-model="showQR" title="联系我" width="320px" align-center>
       <div class="qrcode-dialog-body">
@@ -89,462 +124,580 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { topics as sharedTopics} from '@/data/topics'
-import { loadTopics, topics as trueTopics } from '@/composables/useTopics'
-import request from '@/utils/request'
+import { loadTopics, topics } from '@/composables/useTopics'
 import { getArticles } from '@/composables/useArticle'
 
-onMounted(async () => {
-    const tempTopics = await loadTopics()
-})
-
-const topics = trueTopics
-
 const posts = ref([])
+const loading = ref(true)
 const showQR = ref(false)
+const articleTotal = ref(0)
+const topicCounts = ref({})
+const contactGithub = import.meta.env.VITE_CONTACT_GITHUB || 'https://github.com/Asukayanamii'
+
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 onMounted(async () => {
-  let query = {
-    pageNum: 1,
-    pageSize: 10,
-  }
-  let queryResult = await getArticles(query.pageNum, query.pageSize, null, null)
-  if (!queryResult || !queryResult.records) {
-    console.error('Failed to load articles')
-    posts.value = []
-    return
-  }
-  posts.value = queryResult.records
+  const [result] = await Promise.all([
+    getArticles(1, 10, null, null),
+    loadTopics(),
+  ])
+
+  posts.value = result?.records || []
+  articleTotal.value = result?.total || 0
+
+  const countResults = await Promise.all(
+    topics.value.map(async (topic) => {
+      const topicResult = await getArticles(1, 1, topic.id, null)
+      return [topic.id, topicResult?.total || 0]
+    }),
+  )
+  topicCounts.value = Object.fromEntries(countResults)
+  loading.value = false
 })
-
-
-
 </script>
 
 <style scoped>
-.home-content {
-  width: 100%;
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: min(100vh, 760px);
+  padding: 8rem 1.5rem 6rem;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  background: url('/hero-banner.jpeg') center / cover no-repeat;
 }
 
-.hero {
-  display: grid;
-  gap: 2rem;
-  align-items: center;
-  width: 100%;
-  padding: 2rem 1.5rem;
-  margin-bottom: 2rem;
+.hero-shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 30, 39, 0.48);
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 790px;
 }
 
 .eyebrow {
-  display: inline-block;
-  margin-bottom: 1rem;
-  padding: 0.45rem 1rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(91, 124, 255, 0.15), rgba(255, 120, 198, 0.15));
-  color: #5b7cff;
-  font-size: 0.95rem;
-  font-weight: 700;
+  margin: 0 0 1rem;
+  font-size: 0.96rem;
+  font-weight: 500;
 }
 
-h1 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  line-height: 1.02;
-  letter-spacing: -0.04em;
-  margin-bottom: 1rem;
+.hero h1 {
+  margin: 0;
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(2.15rem, 5vw, 4.3rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .hero-description {
-  max-width: 640px;
-  margin-bottom: 1.8rem;
-  color: #4a5a7f;
-  font-size: 1.05rem;
-  line-height: 1.8;
+  max-width: 610px;
+  margin: 1.5rem auto 2rem;
+  font-size: 1rem;
+  line-height: 1.9;
 }
 
 .hero-actions {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
-.btn {
+.hero-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 170px;
-  padding: 0.95rem 1.5rem;
-  border-radius: 999px;
-  border: none;
-  font-weight: 700;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  text-decoration: none;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(91, 124, 255, 0.25);
-}
-
-.btn-primary {
+  min-width: 138px;
+  padding: 0.7rem 1.25rem;
   color: #fff;
-  background: linear-gradient(135deg, #5b7cff 0%, #ff78c6 100%);
+  background: var(--blog-blue);
+  border: 1px solid var(--blog-blue);
+  border-radius: 3px;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.btn-secondary {
-  color: #5b7cff;
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid #5b7cff;
+.hero-button:hover {
+  background: var(--blog-blue-deep);
+  transform: translateY(-2px);
 }
 
-.hero-visual {
-  position: relative;
-  display: flex;
-  justify-content: center;
+.hero-button-quiet {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.7);
 }
 
-.floating-card {
-  position: relative;
-  width: min(100%, 360px);
-  padding: 1.7rem;
-  border-radius: 32px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 28px 80px rgba(91, 124, 255, 0.12);
-  border: 1px solid rgba(91, 124, 255, 0.2);
-  backdrop-filter: blur(8px);
+.hero-button-quiet:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.scroll-down {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  z-index: 1;
+  width: 26px;
+  height: 38px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+  transform: translateX(-50%);
+}
+
+.scroll-down span {
+  display: block;
+  width: 4px;
+  height: 8px;
+  margin: 7px auto 0;
+  background: #fff;
+  border-radius: 4px;
+  animation: scroll-mark 1.8s ease-in-out infinite;
+}
+
+@keyframes scroll-mark {
+  0%, 100% { opacity: 1; transform: translateY(0); }
+  55% { opacity: 0.25; transform: translateY(13px); }
+}
+
+.home-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 1.5rem;
+  width: min(1160px, calc(100% - 2rem));
+  margin: 2rem auto 4rem;
+}
+
+.recent-posts {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.posts-heading {
+  padding: 0.25rem 0 0.35rem;
+}
+
+.posts-heading span,
+.aside-kicker {
+  display: block;
+  margin: 0 0 0.35rem;
+  color: var(--blog-blue);
+  font-size: 0.78rem;
+}
+
+.posts-heading h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.38rem;
+}
+
+.posts-heading p {
+  margin: 0.45rem 0 0;
+  color: var(--blog-muted);
+  font-size: 0.86rem;
+}
+
+.recent-post-item {
+  display: grid;
+  grid-template-columns: minmax(180px, 44%) minmax(0, 1fr);
+  min-height: 236px;
+  overflow: hidden;
+  color: var(--blog-ink);
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.recent-post-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+}
+
+.post-cover {
+  grid-column: 1;
   overflow: hidden;
 }
 
-.screen-header {
-  display: flex;
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
+.post-cover.right {
+  grid-column: 2;
+  grid-row: 1;
 }
 
-.screen-header span {
-  width: 0.8rem;
-  height: 0.8rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #5b7cff, #ff78c6);
-}
-
-.screen-body {
-  padding: 1rem 0;
-  display: grid;
-  gap: 0.95rem;
-}
-
-.code-line {
-  height: 0.9rem;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(91, 124, 255, 0.7), rgba(255, 120, 198, 0.7));
-}
-
-.line-1 { width: 90%; }
-.line-2 { width: 70%; }
-.line-3 { width: 80%; }
-.line-4 { width: 60%; }
-
-.petal {
-  position: absolute;
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.65);
-  border-radius: 50% 50% 50% 25%;
-  filter: blur(0.35px);
-  animation: float 8s ease-in-out infinite;
-}
-
-.petal::before,
-.petal::after {
-  content: "";
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  background: rgba(255, 202, 230, 0.95);
-  border-radius: 50%;
-}
-
-.petal::before {
-  top: 10px;
-  left: 8px;
-}
-
-.petal::after {
-  bottom: 10px;
-  right: 8px;
-}
-
-.petal-1 {
-  top: -18%;
-  left: 12%;
-  animation-duration: 10s;
-}
-
-.petal-2 {
-  top: 15%;
-  right: 18%;
-  animation-duration: 12s;
-}
-
-.petal-3 {
-  bottom: 5%;
-  left: 14%;
-  animation-duration: 9s;
-}
-
-.petal-4 {
-  bottom: 18%;
-  right: 10%;
-  animation-duration: 11s;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate(10px, -18px) rotate(6deg);
-  }
-}
-
-.features,
-.posts,
-.subscribe {
+.post-cover img {
   width: 100%;
-  padding: 2rem 1.5rem;
-  box-sizing: border-box;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
 }
 
-.section-header {
+.recent-post-item:hover .post-cover img {
+  transform: scale(1.08);
+}
+
+.recent-post-info {
   display: flex;
+  grid-column: 2;
+  grid-row: 1;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
+  justify-content: center;
+  padding: 1.8rem 1.9rem;
 }
 
-.section-header span,
-.posts-heading span {
-  display: inline-flex;
-  padding: 0.45rem 0.9rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(91, 124, 255, 0.12), rgba(255, 120, 198, 0.12));
-  color: #5b7cff;
-  font-weight: 700;
-  font-size: 0.95rem;
+.post-cover.right + .recent-post-info {
+  grid-column: 1;
+  text-align: right;
 }
 
-.section-header h2,
-.posts-heading h2 {
-  font-size: clamp(1.8rem, 3vw, 2.4rem);
+.recent-post-info h2 {
   margin: 0;
+  color: #333;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  line-height: 1.45;
 }
 
-.topic-scroll-inner,
-.post-scroll-inner {
-  display: flex;
-  gap: 1.4rem;
-  padding: 1rem 0;
-  align-items: stretch;
+.article-meta {
+  margin: 0.6rem 0 0.8rem;
+  color: var(--blog-muted);
+  font-size: 0.78rem;
 }
 
-.feature-card,
-.post-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 24px 60px rgba(91, 124, 255, 0.08);
-  border: 1px solid rgba(91, 124, 255, 0.15);
-  min-width: 260px;
-  max-width: 320px;
-  flex: 0 0 auto;
+.meta-divider {
+  padding: 0 0.4rem;
 }
 
-.feature-card h3,
-.post-card h3 {
-  margin-bottom: 0.85rem;
-  color: #5b7cff;
-}
-
-.feature-card {
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 28px 60px rgba(91, 124, 255, 0.15);
-}
-
-.feature-card p,
-.post-card p {
-  color: #5a6a8a;
-  line-height: 1.75;
-}
-
-.post-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.45rem 0.75rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(91, 124, 255, 0.15), rgba(255, 120, 198, 0.15));
-  color: #5b7cff;
+.recent-post-info p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: #666;
   font-size: 0.88rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.post-card {
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.post-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 28px 60px rgba(91, 124, 255, 0.15);
+  line-height: 1.75;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .read-link {
-  display: inline-flex;
-  margin-top: auto;
-  color: #3b4d8f;
-  font-weight: 700;
-  transition: color 0.2s ease, transform 0.2s ease;
+  margin-top: 1rem;
+  color: var(--blog-blue);
+  font-size: 0.86rem;
+  font-weight: 600;
 }
 
-.post-card:hover .read-link {
-  color: #5b7cff;
-  transform: translateX(4px);
+.home-aside {
+  display: grid;
+  align-content: start;
+  gap: 1.5rem;
 }
 
-.subscribe {
-  margin-top: 0;
-  padding-bottom: 3rem;
+.aside-card {
+  padding: 1.35rem;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
 }
 
-.subscribe-card {
-  display: flex;
-  flex-direction: column;
-  gap: 1.3rem;
-  padding: 2rem;
-  border-radius: 32px;
-  background: linear-gradient(135deg, rgba(91, 124, 255, 0.08), rgba(255, 120, 198, 0.08));
-  box-shadow: 0 30px 80px rgba(91, 124, 255, 0.1);
-  border: 1px solid rgba(91, 124, 255, 0.2);
-}
-
-.subscribe-card h2 {
-  margin: 0;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
-}
-
-.subscribe-card button {
-  align-self: flex-start;
-  padding: 1rem 1.8rem;
-  border-radius: 999px;
-  border: none;
+.aside-card h2 {
+  margin: 0 0 0.85rem;
+  color: #333;
   font-size: 1rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #5b7cff 0%, #ff78c6 100%);
-  color: #fff;
-  cursor: pointer;
+}
+
+.aside-kicker {
+  margin-bottom: 0.25rem;
+}
+
+.profile-card {
+  padding: 1.55rem 1.35rem 1.2rem;
+  overflow: hidden;
+  text-align: center;
+}
+
+.profile-heading {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.profile-heading h2 {
+  margin: 0;
+  color: var(--blog-ink);
+  font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.profile-avatar-link {
+  display: block;
+  flex: 0 0 auto;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  border-radius: inherit;
+  box-shadow: 0 4px 14px rgba(40, 105, 143, 0.2);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.subscribe-card button:hover {
+.profile-avatar-link:hover .profile-avatar {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 7px 18px rgba(40, 105, 143, 0.25);
+}
+
+.profile-bio {
+  max-width: 220px;
+  margin: 0.8rem auto 1.05rem;
+  color: var(--blog-muted);
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+.github-profile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.35rem 0.25rem;
+  color: var(--blog-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-size: 0.76rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.github-profile-link:hover {
+  color: var(--blog-blue);
+}
+
+.github-profile-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.external-mark {
+  font-size: 0.9rem;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0.65rem -1.35rem 0;
+  border-top: 1px solid var(--blog-line);
+}
+
+.profile-stat {
+  display: grid;
+  gap: 0.12rem;
+  justify-items: center;
+  padding: 0.85rem 0 0.05rem;
+  color: var(--blog-muted);
+  font-size: 0.74rem;
+  text-decoration: none;
+}
+
+.profile-stat + .profile-stat {
+  border-left: 1px solid var(--blog-line);
+}
+
+.profile-stat strong {
+  color: var(--blog-ink);
+  font-size: 1.15rem;
+  line-height: 1.25;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.profile-stat:hover strong {
+  color: var(--blog-blue);
   transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(91, 124, 255, 0.3);
 }
 
-@media (max-width: 640px) {
-  .hero,
-  .features,
-  .posts,
-  .subscribe {
-    padding: 1.5rem 1rem;
+.topic-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.topic-heading h2 {
+  margin-bottom: 0.85rem;
+}
+
+.topic-total {
+  padding-top: 0.15rem;
+  color: var(--blog-muted);
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+
+.topic-total:hover {
+  color: var(--blog-blue);
+}
+
+.topic-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.5rem;
+  padding: 0.8rem 0;
+  color: var(--blog-ink);
+  border-top: 1px solid var(--blog-line);
+  text-decoration: none;
+}
+
+.topic-link:hover .topic-name,
+.topic-link:hover .topic-count {
+  color: var(--blog-blue);
+}
+
+.topic-link .topic-name,
+.topic-link small {
+  display: block;
+}
+
+.topic-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.topic-count {
+  align-self: start;
+  color: var(--blog-muted);
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.7;
+  transition: color 0.2s ease;
+}
+
+.topic-link small {
+  grid-column: 1 / -1;
+  display: -webkit-box;
+  margin-top: 0.3rem;
+  overflow: hidden;
+  color: var(--blog-muted);
+  font-size: 0.76rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.aside-empty,
+.empty-state {
+  margin: 0;
+  padding: 2rem 1rem;
+  color: var(--blog-muted);
+  text-align: center;
+}
+
+.subscribe-card {
+  color: #fff;
+  background: var(--blog-blue);
+}
+
+.subscribe-card p {
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+}
+
+.subscribe-card h2 {
+  color: inherit;
+  line-height: 1.5;
+}
+
+.subscribe-card button {
+  padding: 0.55rem 0.95rem;
+  color: var(--blog-blue-deep);
+  background: #fff;
+  border: 0;
+  border-radius: 3px;
+  font-size: 0.86rem;
+}
+
+.loading-state {
+  padding: 4rem 1rem;
+  color: var(--blog-muted);
+  text-align: center;
+}
+
+.loading-state span {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 0.75rem;
+  border: 3px solid #dcecf8;
+  border-top-color: var(--blog-blue);
+  border-radius: 50%;
+  animation: loading-spin 0.8s linear infinite;
+}
+
+@keyframes loading-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 900px) {
+  .home-layout {
+    grid-template-columns: 1fr;
   }
 
-  h1 {
-    font-size: clamp(1.8rem, 4vw, 2.5rem);
-  }
-
-  .hero-actions {
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  .btn {
-    min-width: auto;
-    width: 100%;
-  }
-
-  .topic-scroll-inner,
-  .post-scroll-inner {
-    gap: 1rem;
-  }
-
-  .feature-card,
-  .post-card {
-    min-width: 240px;
-    max-width: 280px;
+  .home-aside {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 641px) and (max-width: 768px) {
-  .hero,
-  .features,
-  .posts,
-  .subscribe {
-    padding: 1.8rem 1.5rem;
+@media (max-width: 620px) {
+  .hero { min-height: 620px; }
+
+  .home-layout {
+    width: min(100% - 1.25rem, 560px);
+    margin-top: 1rem;
   }
 
-  .hero {
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1023px) {
-  .hero,
-  .features,
-  .posts,
-  .subscribe {
-    padding: 2rem 2rem;
-  }
-}
-
-@media (min-width: 900px) {
-  .hero {
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 3rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero,
-  .features,
-  .posts,
-  .subscribe {
-    padding: 2.5rem 2rem;
-  }
-}
-
-@media (min-width: 1200px) {
-  .hero,
-  .features,
-  .posts,
-  .subscribe {
-    padding: 3rem 2rem;
+  .recent-post-item,
+  .recent-post-item:has(.post-cover.right) {
+    grid-template-columns: 1fr;
   }
 
-  .hero .hero-copy {
-    max-width: 620px;
+  .post-cover,
+  .post-cover.right {
+    grid-column: 1;
+    grid-row: 1;
+    height: 190px;
   }
+
+  .recent-post-info,
+  .post-cover.right + .recent-post-info {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 1.3rem;
+    text-align: left;
+  }
+
+  .home-aside { grid-template-columns: 1fr; }
 }
 </style>
 
@@ -558,14 +711,12 @@ h1 {
 
 .wx-qrcode-dialog {
   width: 180px;
-  border-radius: 12px;
-  border: 2px solid #e0e8f0;
+  border: 1px solid var(--blog-line);
 }
 
 .qrcode-dialog-text {
   margin: 1rem 0 0.3rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #2a3a5f;
+  color: var(--blog-ink);
+  font-size: 0.95rem;
 }
 </style>

@@ -1,0 +1,11 @@
+blog:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: localhost
+    port: 3306
+    database: asuka_blog
+    username: root
+    password: change-me
+  jwt:
+    # Use a long, random value. JWT signing requires at least 32 bytes.
+    admin-secret-key: change-this-to-a-long-random-development-secret
