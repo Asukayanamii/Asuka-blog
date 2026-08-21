@@ -57,4 +57,12 @@
     <delete id="deleteById">
         DELETE FROM blog_article WHERE id = #{id}
     </delete>
+
+    <select id="selectAllMarkdown" resultType="com.asuka.backend.pojo.vo.ArticleMarkdownRow">
+        SELECT id, content_md FROM blog_article ORDER BY id
+    </select>
+
+    <update id="updateContentHtml">
+        UPDATE blog_article SET content_html = #{contentHtml}, update_time = update_time WHERE id = #{id}
+    </update>
 </mapper>

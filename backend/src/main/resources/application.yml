@@ -31,3 +31,16 @@ springdoc:
 blog:
   jwt:
     admin-secret-key: ${blog.jwt.admin-secret-key}
+  formula:
+    backfill:
+      enabled: ${BLOG_FORMULA_BACKFILL_ENABLED:false}
+    font-size: ${BLOG_FORMULA_FONT_SIZE:20}
+    dpi: ${BLOG_FORMULA_DPI:150}
+    render-version: ${BLOG_FORMULA_RENDER_VERSION:2}
+    oss-endpoint: ${BLOG_OSS_ENDPOINT:}
+    oss-region: ${BLOG_OSS_REGION:}
+    oss-bucket: ${BLOG_OSS_BUCKET:}
+    oss-access-key-id: ${BLOG_OSS_ACCESS_KEY_ID:${OSS_ACCESS_KEY_ID:}}
+    oss-access-key-secret: ${BLOG_OSS_ACCESS_KEY_SECRET:${OSS_ACCESS_KEY_SECRET:}}
+    public-base-url: ${BLOG_OSS_PUBLIC_BASE_URL:}
+    object-prefix: ${BLOG_OSS_OBJECT_PREFIX:blog/formulas}

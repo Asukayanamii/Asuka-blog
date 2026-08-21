@@ -20,7 +20,7 @@
 | 前端 | 后端 | 部署 |
 | --- | --- | --- |
 | Vue 3、Vue Router、Vite | Spring Boot 4、MyBatis、PageHelper | Docker Compose、Nginx、MySQL 8 |
-| Element Plus、Axios | CommonMark、JWT、BCrypt | Eclipse Temurin 21 JRE |
+| Element Plus、Axios | Flexmark、JLaTeXMath、阿里云 OSS、JWT、BCrypt | Eclipse Temurin 21 JRE |
 
 ## 项目结构
 
