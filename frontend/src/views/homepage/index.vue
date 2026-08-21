@@ -48,16 +48,58 @@
       </section>
 
       <aside class="home-aside">
+        <section class="aside-card profile-card" aria-label="个人信息">
+          <div class="profile-heading">
+            <a
+              :href="contactGithub"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="profile-avatar-link"
+              title="访问 GitHub 主页"
+            >
+              <img src="/avatar.jpg" alt="Asuka 的头像" class="profile-avatar" />
+            </a>
+            <h2>Asuka</h2>
+          </div>
+          <p class="profile-bio">一名热爱技术的开发者，记录技术学习、项目实践与日常思考。</p>
+          <a
+            :href="contactGithub"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="github-profile-link"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" /></svg>
+            <span>github.com/Asukayanamii</span>
+            <span class="external-mark" aria-hidden="true">↗</span>
+          </a>
+          <div class="profile-stats" aria-label="博客统计">
+            <router-link to="/articles" class="profile-stat" title="查看全部文章">
+              <strong>{{ articleTotal }}</strong>
+              <span>文章</span>
+            </router-link>
+            <a href="#topics" class="profile-stat" title="查看全部分类">
+              <strong>{{ topics.length }}</strong>
+              <span>分类</span>
+            </a>
+          </div>
+        </section>
+
         <section id="topics" class="aside-card topic-card">
-          <p class="aside-kicker">内容分类</p>
-          <h2>技术专题</h2>
+          <div class="topic-heading">
+            <div>
+              <p class="aside-kicker">内容分类</p>
+              <h2>技术专题</h2>
+            </div>
+            <router-link to="/articles" class="topic-total" title="查看全部文章">{{ articleTotal }} 篇</router-link>
+          </div>
           <router-link
             v-for="topic in topics"
             :key="topic.id"
             :to="{ name: 'articles', query: { topicId: topic.id } }"
             class="topic-link"
           >
-            <span>{{ topic.topicName }}</span>
+            <span class="topic-name">{{ topic.topicName }}</span>
+            <b class="topic-count">{{ topicCounts[topic.id] ?? 0 }}</b>
             <small>{{ topic.description }}</small>
           </router-link>
           <p v-if="topics.length === 0" class="aside-empty">暂无栏目</p>
@@ -82,12 +124,15 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { topics } from '@/composables/useTopics'
+import { loadTopics, topics } from '@/composables/useTopics'
 import { getArticles } from '@/composables/useArticle'
 
 const posts = ref([])
 const loading = ref(true)
 const showQR = ref(false)
+const articleTotal = ref(0)
+const topicCounts = ref({})
+const contactGithub = import.meta.env.VITE_CONTACT_GITHUB || 'https://github.com/Asukayanamii'
 
 function formatDate(dateStr) {
   if (!dateStr) return ''
@@ -99,8 +144,21 @@ function formatDate(dateStr) {
 }
 
 onMounted(async () => {
-  const result = await getArticles(1, 10, null, null)
+  const [result] = await Promise.all([
+    getArticles(1, 10, null, null),
+    loadTopics(),
+  ])
+
   posts.value = result?.records || []
+  articleTotal.value = result?.total || 0
+
+  const countResults = await Promise.all(
+    topics.value.map(async (topic) => {
+      const topicResult = await getArticles(1, 1, topic.id, null)
+      return [topic.id, topicResult?.total || 0]
+    }),
+  )
+  topicCounts.value = Object.fromEntries(countResults)
   loading.value = false
 })
 </script>
@@ -365,29 +423,181 @@ onMounted(async () => {
   margin-bottom: 0.25rem;
 }
 
-.topic-link {
+.profile-card {
+  padding: 1.55rem 1.35rem 1.2rem;
+  overflow: hidden;
+  text-align: center;
+}
+
+.profile-heading {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.profile-heading h2 {
+  margin: 0;
+  color: var(--blog-ink);
+  font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.profile-avatar-link {
   display: block;
+  flex: 0 0 auto;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  border-radius: inherit;
+  box-shadow: 0 4px 14px rgba(40, 105, 143, 0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.profile-avatar-link:hover .profile-avatar {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 7px 18px rgba(40, 105, 143, 0.25);
+}
+
+.profile-bio {
+  max-width: 220px;
+  margin: 0.8rem auto 1.05rem;
+  color: var(--blog-muted);
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+.github-profile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.35rem 0.25rem;
+  color: var(--blog-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-size: 0.76rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.github-profile-link:hover {
+  color: var(--blog-blue);
+}
+
+.github-profile-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.external-mark {
+  font-size: 0.9rem;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0.65rem -1.35rem 0;
+  border-top: 1px solid var(--blog-line);
+}
+
+.profile-stat {
+  display: grid;
+  gap: 0.12rem;
+  justify-items: center;
+  padding: 0.85rem 0 0.05rem;
+  color: var(--blog-muted);
+  font-size: 0.74rem;
+  text-decoration: none;
+}
+
+.profile-stat + .profile-stat {
+  border-left: 1px solid var(--blog-line);
+}
+
+.profile-stat strong {
+  color: var(--blog-ink);
+  font-size: 1.15rem;
+  line-height: 1.25;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.profile-stat:hover strong {
+  color: var(--blog-blue);
+  transform: translateY(-2px);
+}
+
+.topic-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.topic-heading h2 {
+  margin-bottom: 0.85rem;
+}
+
+.topic-total {
+  padding-top: 0.15rem;
+  color: var(--blog-muted);
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+
+.topic-total:hover {
+  color: var(--blog-blue);
+}
+
+.topic-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.5rem;
   padding: 0.8rem 0;
   color: var(--blog-ink);
   border-top: 1px solid var(--blog-line);
   text-decoration: none;
 }
 
-.topic-link:hover span {
+.topic-link:hover .topic-name,
+.topic-link:hover .topic-count {
   color: var(--blog-blue);
 }
 
-.topic-link span,
+.topic-link .topic-name,
 .topic-link small {
   display: block;
 }
 
-.topic-link span {
+.topic-name {
   font-size: 0.9rem;
   font-weight: 600;
 }
 
+.topic-count {
+  align-self: start;
+  color: var(--blog-muted);
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.7;
+  transition: color 0.2s ease;
+}
+
 .topic-link small {
+  grid-column: 1 / -1;
   display: -webkit-box;
   margin-top: 0.3rem;
   overflow: hidden;
