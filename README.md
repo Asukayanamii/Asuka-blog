@@ -7,9 +7,9 @@
 ## 功能
 
 - 文章列表按更新时间分页，并支持专题筛选
-- Markdown 在服务端转换为 HTML，文章详情自动生成可拖拽的目录浮窗
+- Markdown 在前端渲染为 HTML（md-editor-v3 + KaTeX，支持数学公式），文章详情自动生成可拖拽的目录浮窗
 - 首页、文章归档、关于页和管理端均支持日间与夜间模式，主题选择会保留
-- 后台文章与专题的新增、编辑、删除，以及 Markdown 文件或 JSON 上传接口
+- 后台文章与专题的新增、编辑、删除，管理端支持一键刷新所有文章的 HTML 渲染产物
 - JWT 保护 `/admin/**` 接口，前端路由守卫保护管理页面
 - Nginx 提供 SPA 路由回退与 `/api` 反向代理
 
@@ -20,7 +20,7 @@
 | 前端 | 后端 | 部署 |
 | --- | --- | --- |
 | Vue 3、Vue Router、Vite | Spring Boot 4、MyBatis、PageHelper | Docker Compose、Nginx、MySQL 8 |
-| Element Plus、Axios | Flexmark、JLaTeXMath、阿里云 OSS、JWT、BCrypt | Eclipse Temurin 21 JRE |
+| Element Plus、Axios、md-editor-v3、markdown-it、KaTeX | JWT、BCrypt | Eclipse Temurin 21 JRE |
 
 ## 项目结构
 
@@ -134,7 +134,9 @@ docker compose down -v
 | 公开 | GET | `/user/articles/list` | 分页文章列表，可传 `pageNum`、`pageSize`、`topicId`、`title` |
 | 公开 | GET | `/user/articles/detail?id={id}` | 文章详情与 HTML 内容 |
 | 管理 | POST | `/admin/login` | 管理员登录，返回 JWT |
-| 管理 | GET/POST/PUT/DELETE | `/admin/articles/**` | 文章管理与 Markdown 上传 |
+| 管理 | GET/POST/PUT/DELETE | `/admin/articles/**` | 文章管理（新增/更新接口直接接收前端渲染的 HTML） |
+| 管理 | GET | `/admin/articles/markdown` | 获取全部文章 Markdown 原文，供一键刷新渲染 |
+| 管理 | PUT | `/admin/articles/{id}/html` | 仅更新文章 HTML 渲染产物 |
 | 管理 | GET/POST/PUT/DELETE | `/admin/topics/**` | 专题管理 |
 
 ## 验证

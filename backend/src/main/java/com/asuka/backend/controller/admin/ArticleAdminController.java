@@ -1,10 +1,11 @@
 package com.asuka.backend.controller.admin;
 
+import com.asuka.backend.pojo.dto.ArticleHtmlUpdateDTO;
 import com.asuka.backend.pojo.dto.ArticlePageQueryDTO;
 import com.asuka.backend.pojo.dto.ArticleSaveDTO;
-import com.asuka.backend.pojo.dto.ArticleUploadDTO;
 import com.asuka.backend.pojo.vo.ArticleDetailWithMdVO;
 import com.asuka.backend.pojo.vo.ArticleListVO;
+import com.asuka.backend.pojo.vo.ArticleMarkdownRow;
 import com.asuka.backend.result.PageResult;
 import com.asuka.backend.result.Result;
 import com.asuka.backend.service.ArticleService;
@@ -13,10 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/articles")
@@ -64,48 +63,18 @@ public class ArticleAdminController {
         return Result.success();
     }
 
-    @PostMapping("/upload")
-    @Operation(summary = "上传文章（MD文件）")
-    public Result<Integer> upload(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("title") String title,
-            @RequestParam("summary") String summary,
-            @RequestParam("topicId") Integer topicId,
-            @RequestParam(value = "sort", defaultValue = "0") Integer sort) {
-
-        log.info("上传文章: {}", title);
-
-        if (file.isEmpty()) {
-            // 空文件无需进入解析和持久化流程。
-            return Result.error("文件不能为空");
-        }
-
-        try {
-            // 统一按 UTF-8 读取 Markdown 文件，再复用 service 的文章保存逻辑。
-            String contentMd = new String(file.getBytes(), StandardCharsets.UTF_8);
-
-            ArticleUploadDTO dto = ArticleUploadDTO.builder()
-                    .title(title)
-                    .summary(summary)
-                    .contentMd(contentMd)
-                    .topicId(topicId)
-                    .sort(sort)
-                    .build();
-
-            // DTO 组装完成后由 service 负责 Markdown 转换和入库。
-            Integer articleId = articleService.uploadArticle(dto);
-            return Result.success(articleId);
-        } catch (IOException e) {
-            log.error("读取文件失败", e);
-            return Result.error("文件读取失败: " + e.getMessage());
-        }
+    @GetMapping("/markdown")
+    @Operation(summary = "获取全部文章的 Markdown 原文")
+    public Result<List<ArticleMarkdownRow>> listMarkdown() {
+        // 管理端“一键刷新”按钮先拉取所有 Markdown，前端批量渲染后再逐个更新 HTML。
+        return Result.success(articleService.listAllMarkdown());
     }
 
-    @PostMapping("/upload/json")
-    @Operation(summary = "上传文章（JSON）")
-    public Result<Integer> uploadJson(@RequestBody ArticleUploadDTO dto) {
-        log.info("上传文章(JSON): {}", dto.getTitle());
-        Integer articleId = articleService.uploadArticle(dto);
-        return Result.success(articleId);
+    @PutMapping("/{id}/html")
+    @Operation(summary = "更新文章HTML产物")
+    public Result<Void> updateHtml(@PathVariable Integer id, @RequestBody ArticleHtmlUpdateDTO dto) {
+        // 以路径参数为准，仅覆盖渲染产物，不触碰 Markdown 原文。
+        articleService.updateArticleHtml(id, dto.getContentHtml());
+        return Result.success();
     }
 }

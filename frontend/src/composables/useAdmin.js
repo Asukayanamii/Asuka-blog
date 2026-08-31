@@ -28,6 +28,16 @@ export function deleteArticle(id) {
     return request.delete('/admin/articles/' + id)
 }
 
+// 一键刷新用：获取全部文章的 Markdown 原文
+export function getAllMarkdown() {
+    return request.get('/admin/articles/markdown')
+}
+
+// 一键刷新用：仅更新文章的 HTML 渲染产物
+export function updateArticleHtml(id, contentHtml) {
+    return request.put('/admin/articles/' + id + '/html', { contentHtml })
+}
+
 export function getTopics() {
     return request.get('/admin/topics/list')
 }

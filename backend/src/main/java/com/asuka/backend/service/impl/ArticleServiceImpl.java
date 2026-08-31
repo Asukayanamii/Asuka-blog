@@ -4,14 +4,13 @@ package com.asuka.backend.service.impl;
 import com.asuka.backend.mapper.ArticleMapper;
 import com.asuka.backend.pojo.dto.ArticlePageQueryDTO;
 import com.asuka.backend.pojo.dto.ArticleSaveDTO;
-import com.asuka.backend.pojo.dto.ArticleUploadDTO;
 import com.asuka.backend.pojo.entity.Article;
 import com.asuka.backend.pojo.vo.ArticleDetailVO;
 import com.asuka.backend.pojo.vo.ArticleDetailWithMdVO;
 import com.asuka.backend.pojo.vo.ArticleListVO;
+import com.asuka.backend.pojo.vo.ArticleMarkdownRow;
 import com.asuka.backend.result.PageResult;
 import com.asuka.backend.service.ArticleService;
-import com.asuka.backend.service.MarkdownRenderService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -19,19 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private ArticleMapper articleMapper;
-
-    private final MarkdownRenderService markdownRenderService;
-
-    public ArticleServiceImpl(MarkdownRenderService markdownRenderService) {
-        this.markdownRenderService = markdownRenderService;
-    }
-
 
     @Override
     public PageResult<ArticleListVO> getByTopicPage(ArticlePageQueryDTO articlePageQueryDTO) {
@@ -58,41 +51,15 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Integer uploadArticle(ArticleUploadDTO dto) {
-        log.info("上传文章:{}", dto.getTitle());
-
-        // 先将 Markdown 转换为 HTML，保存后前端可以直接展示文章内容。
-        String contentHtml = markdownRenderService.render(dto.getContentMd());
-
-        // 上传和手工新增共用同一套文章持久化字段，未提供排序值时默认排在末尾。
-        Article article = Article.builder()
-                .title(dto.getTitle())
-                .summary(dto.getSummary())
-                .contentMd(dto.getContentMd())
-                .contentHtml(contentHtml)
-                .topicId(dto.getTopicId())
-                .sort(dto.getSort() != null ? dto.getSort() : 0)
-                .createTime(LocalDateTime.now())
-                .updateTime(LocalDateTime.now())
-                .build();
-
-        articleMapper.insert(article);
-        // MyBatis 回填自增主键，返回给调用方用于后续定位文章。
-        return article.getId();
-    }
-
-    @Override
     public Integer createArticle(ArticleSaveDTO dto) {
         log.info("新增文章:{}", dto.getTitle());
 
-        // 保存前统一生成 HTML，确保 Markdown 原文与展示内容保持同步。
-        String contentHtml = markdownRenderService.render(dto.getContentMd());
-
+        // HTML 由前端编辑器（md-editor-v3）渲染后随请求传入，后端只负责存储。
         Article article = Article.builder()
                 .title(dto.getTitle())
                 .summary(dto.getSummary())
                 .contentMd(dto.getContentMd())
-                .contentHtml(contentHtml)
+                .contentHtml(dto.getContentHtml())
                 .topicId(dto.getTopicId())
                 .sort(dto.getSort() != null ? dto.getSort() : 0)
                 .createTime(LocalDateTime.now())
@@ -108,15 +75,13 @@ public class ArticleServiceImpl implements ArticleService {
     public void updateArticle(ArticleSaveDTO dto) {
         log.info("更新文章:{}", dto.getId());
 
-        // 更新时重新渲染 HTML，避免只修改 Markdown 后展示内容仍是旧版本。
-        String contentHtml = markdownRenderService.render(dto.getContentMd());
-
+        // HTML 由前端重新渲染后传入，避免只修改 Markdown 后展示内容仍是旧版本。
         Article article = Article.builder()
                 .id(dto.getId())
                 .title(dto.getTitle())
                 .summary(dto.getSummary())
                 .contentMd(dto.getContentMd())
-                .contentHtml(contentHtml)
+                .contentHtml(dto.getContentHtml())
                 .topicId(dto.getTopicId())
                 .sort(dto.getSort() != null ? dto.getSort() : 0)
                 .updateTime(LocalDateTime.now())
@@ -131,6 +96,20 @@ public class ArticleServiceImpl implements ArticleService {
         log.info("删除文章:{}", id);
         // 删除由 Mapper 按主键执行，文章关联数据由数据库约束或 Mapper 负责处理。
         articleMapper.deleteById(id);
+    }
+
+    @Override
+    public List<ArticleMarkdownRow> listAllMarkdown() {
+        log.info("查询全部文章的 Markdown 原文");
+        // 供管理端“一键刷新”批量重渲染 HTML 使用，只取 id 与原文，避免传输大字段。
+        return articleMapper.selectAllMarkdown();
+    }
+
+    @Override
+    public void updateArticleHtml(Integer id, String contentHtml) {
+        log.info("更新文章HTML产物:{}", id);
+        // 仅覆盖渲染产物，不触碰 Markdown 原文；update_time 保持不变，避免一键刷新导致文章列表排序变化。
+        articleMapper.updateContentHtml(id, contentHtml);
     }
 
 }

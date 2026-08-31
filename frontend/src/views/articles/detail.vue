@@ -424,6 +424,12 @@ onUnmounted(() => {
   margin: 1.25rem auto;
 }
 
+/* 前端渲染（KaTeX）的块级公式：居中显示并保留上下间距 */
+.article-body :deep(.katex-block) {
+  text-align: center;
+  margin: 1.25rem 0;
+}
+
 .article-body :deep(a) {
   color: var(--blog-blue-deep);
   text-decoration: none;

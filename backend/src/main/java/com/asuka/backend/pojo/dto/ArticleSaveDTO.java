@@ -18,6 +18,9 @@ public class ArticleSaveDTO {
     @Schema(description = "Markdown内容")
     private String contentMd;
 
+    @Schema(description = "HTML渲染内容（由前端渲染后传入，后端不再解析 Markdown）")
+    private String contentHtml;
+
     @Schema(description = "专题ID")
     private Integer topicId;
 

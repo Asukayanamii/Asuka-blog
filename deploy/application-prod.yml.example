@@ -9,11 +9,3 @@ blog:
   jwt:
     # Use a long, random value. JWT signing requires at least 32 bytes.
     admin-secret-key: change-this-to-a-long-random-production-secret
-  formula:
-    oss-endpoint: https://oss-cn-hangzhou.aliyuncs.com
-    oss-region: cn-hangzhou
-    oss-bucket: your-blog-bucket
-    oss-access-key-id: ${BLOG_OSS_ACCESS_KEY_ID:}
-    oss-access-key-secret: ${BLOG_OSS_ACCESS_KEY_SECRET:}
-    public-base-url: https://your-blog-bucket.oss-cn-hangzhou.aliyuncs.com
-    object-prefix: blog/formulas

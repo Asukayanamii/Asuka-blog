@@ -9,7 +9,12 @@
         <el-input v-model="form.summary" type="textarea" :rows="3" placeholder="文章摘要" />
       </el-form-item>
       <el-form-item label="Markdown 内容" required>
-        <el-input v-model="form.contentMd" type="textarea" :rows="20" placeholder="Markdown 内容" />
+        <MdEditor
+          v-model="form.contentMd"
+          :mdHeadingId="headingId"
+          @onHtmlChanged="onHtmlChanged"
+          style="width: 100%;"
+        />
       </el-form-item>
       <el-form-item label="专题">
         <el-select v-model="form.topicId" placeholder="选择专题" clearable>
@@ -33,7 +38,18 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { MdEditor, config } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import katex from 'katex'
 import { createArticle, updateArticle, getArticleDetail, getTopics } from '@/composables/useAdmin'
+import { renderMarkdown } from '@/utils/markdown'
+
+// 数学公式使用本地 katex 实例渲染，避免依赖 CDN。
+config({
+  editorExtensions: {
+    katex: { instance: katex },
+  },
+})
 
 const route = useRoute()
 const router = useRouter()
@@ -47,9 +63,20 @@ const form = reactive({
   title: '',
   summary: '',
   contentMd: '',
+  contentHtml: '',
   topicId: null,
   sort: 0,
 })
+
+// 标题锚点以原文作为 id（与后端一键刷新渲染规则保持一致），保证目录浮窗可跳转。
+function headingId({ text }) {
+  return text
+}
+
+// 编辑器实时产出的 HTML 同步到 form，保存时随请求一并提交后端。
+function onHtmlChanged(html) {
+  form.contentHtml = html || ''
+}
 
 async function loadTopics() {
   try {
@@ -68,6 +95,7 @@ async function loadArticle() {
       form.title = d.title || ''
       form.summary = d.summary || ''
       form.contentMd = d.contentMd || ''
+      form.contentHtml = d.contentHtml || ''
       form.topicId = d.topicId ?? null
       form.sort = d.sort ?? 0
     } else {
@@ -84,6 +112,10 @@ async function save() {
   if (!form.title) {
     ElMessage.warning('请输入文章标题')
     return
+  }
+  if (!form.contentHtml && form.contentMd) {
+    // 编辑器渲染存在防抖延迟，保存前若尚未产出 HTML 则用同一套渲染规则兜底，避免存入空产物。
+    form.contentHtml = renderMarkdown(form.contentMd)
   }
   saving.value = true
   try {
