@@ -12,7 +12,7 @@
         <MdEditor
           v-model="form.contentMd"
           :mdHeadingId="headingId"
-          @onHtmlChanged="onHtmlChanged"
+          :theme="editorTheme"
           style="width: 100%;"
         />
       </el-form-item>
@@ -43,6 +43,7 @@ import 'md-editor-v3/lib/style.css'
 import katex from 'katex'
 import { createArticle, updateArticle, getArticleDetail, getTopics } from '@/composables/useAdmin'
 import { renderMarkdown } from '@/utils/markdown'
+import { useTheme } from '@/composables/useTheme'
 
 // 数学公式使用本地 katex 实例渲染，避免依赖 CDN。
 config({
@@ -54,6 +55,10 @@ config({
 const route = useRoute()
 const router = useRouter()
 const isEdit = computed(() => !!route.params.id)
+
+const { isDark } = useTheme()
+// 编辑器随站点明暗主题切换；预览代码高亮会自动跟随 theme。
+const editorTheme = computed(() => (isDark.value ? 'dark' : 'light'))
 
 const topics = ref([])
 const loading = ref(false)
@@ -73,11 +78,6 @@ function headingId({ text }) {
   return text
 }
 
-// 编辑器实时产出的 HTML 同步到 form，保存时随请求一并提交后端。
-function onHtmlChanged(html) {
-  form.contentHtml = html || ''
-}
-
 async function loadTopics() {
   try {
     const res = await getTopics()
@@ -95,7 +95,6 @@ async function loadArticle() {
       form.title = d.title || ''
       form.summary = d.summary || ''
       form.contentMd = d.contentMd || ''
-      form.contentHtml = d.contentHtml || ''
       form.topicId = d.topicId ?? null
       form.sort = d.sort ?? 0
     } else {
@@ -113,10 +112,9 @@ async function save() {
     ElMessage.warning('请输入文章标题')
     return
   }
-  if (!form.contentHtml && form.contentMd) {
-    // 编辑器渲染存在防抖延迟，保存前若尚未产出 HTML 则用同一套渲染规则兜底，避免存入空产物。
-    form.contentHtml = renderMarkdown(form.contentMd)
-  }
+  // 保存时统一用 renderMarkdown 生成 HTML：产物为干净的标准代码块（<pre><code>），
+  // 与“一键刷新”产物完全一致，公开详情页无需 md-editor-v3 组件样式即可正常展示。
+  form.contentHtml = renderMarkdown(form.contentMd)
   saving.value = true
   try {
     let res
