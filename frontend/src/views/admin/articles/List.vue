@@ -2,7 +2,10 @@
   <div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h2 style="margin:0;">文章管理</h2>
-      <el-button type="primary" @click="$router.push('/admin/articles/create')">新增文章</el-button>
+      <div>
+        <el-button :loading="refreshing" @click="refreshAllHtml">刷新HTML</el-button>
+        <el-button type="primary" @click="$router.push('/admin/articles/create')">新增文章</el-button>
+      </div>
     </div>
 
     <div class="table-wrapper">
@@ -44,11 +47,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getArticles, deleteArticle as delArticle } from '@/composables/useAdmin'
+import { getArticles, getAllMarkdown, updateArticleHtml, deleteArticle as delArticle } from '@/composables/useAdmin'
+import { renderMarkdown } from '@/utils/markdown'
 
 const router = useRouter()
 const articles = ref([])
 const loading = ref(false)
+const refreshing = ref(false)
 const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
@@ -67,6 +72,33 @@ async function loadArticles() {
     ElMessage.error('加载文章列表失败')
   } finally {
     loading.value = false
+  }
+}
+
+// 一键刷新：拉取全部 Markdown 原文，前端重渲染后逐个更新 HTML 产物。
+async function refreshAllHtml() {
+  refreshing.value = true
+  let success = 0
+  let failure = 0
+  try {
+    const res = await getAllMarkdown()
+    const rows = res.code === 1 ? res.data || [] : []
+    for (const row of rows) {
+      try {
+        const html = renderMarkdown(row.contentMd)
+        await updateArticleHtml(row.id, html)
+        success++
+      } catch (e) {
+        failure++
+        console.error('刷新文章HTML失败，articleId=' + row.id, e)
+      }
+    }
+    ElMessage[success > 0 ? 'success' : 'warning'](`刷新完成：成功 ${success} 篇，失败 ${failure} 篇`)
+    if (success > 0) loadArticles()
+  } catch (e) {
+    ElMessage.error('获取文章列表失败，请重试')
+  } finally {
+    refreshing.value = false
   }
 }
 

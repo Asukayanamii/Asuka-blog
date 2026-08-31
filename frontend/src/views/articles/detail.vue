@@ -409,6 +409,27 @@ onUnmounted(() => {
   margin: 1.5em 0;
 }
 
+.article-body :deep(.formula-inline) {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.article-body :deep(.formula-block) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.25rem auto;
+}
+
+/* 前端渲染（KaTeX）的块级公式：居中显示并保留上下间距 */
+.article-body :deep(.katex-block) {
+  text-align: center;
+  margin: 1.25rem 0;
+}
+
 .article-body :deep(a) {
   color: var(--blog-blue-deep);
   text-decoration: none;

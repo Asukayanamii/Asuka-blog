@@ -33,7 +33,7 @@ services:
       - ./backend.jar:/app/backend.jar
       - ./application-prod.yml:/app/application-prod.yml
     working_dir: /app
-    command: java -Dspring.profiles.active=prod -Duser.timezone=Asia/Shanghai -jar backend.jar
+    command: java -Djava.awt.headless=true -Dspring.profiles.active=prod -Duser.timezone=Asia/Shanghai -jar backend.jar
     restart: unless-stopped
 
   frontend:

@@ -9,7 +9,12 @@
         <el-input v-model="form.summary" type="textarea" :rows="3" placeholder="文章摘要" />
       </el-form-item>
       <el-form-item label="Markdown 内容" required>
-        <el-input v-model="form.contentMd" type="textarea" :rows="20" placeholder="Markdown 内容" />
+        <MdEditor
+          v-model="form.contentMd"
+          :mdHeadingId="headingId"
+          :theme="editorTheme"
+          style="width: 100%;"
+        />
       </el-form-item>
       <el-form-item label="专题">
         <el-select v-model="form.topicId" placeholder="选择专题" clearable>
@@ -33,11 +38,27 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { MdEditor, config } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+import katex from 'katex'
 import { createArticle, updateArticle, getArticleDetail, getTopics } from '@/composables/useAdmin'
+import { renderMarkdown } from '@/utils/markdown'
+import { useTheme } from '@/composables/useTheme'
+
+// 数学公式使用本地 katex 实例渲染，避免依赖 CDN。
+config({
+  editorExtensions: {
+    katex: { instance: katex },
+  },
+})
 
 const route = useRoute()
 const router = useRouter()
 const isEdit = computed(() => !!route.params.id)
+
+const { isDark } = useTheme()
+// 编辑器随站点明暗主题切换；预览代码高亮会自动跟随 theme。
+const editorTheme = computed(() => (isDark.value ? 'dark' : 'light'))
 
 const topics = ref([])
 const loading = ref(false)
@@ -47,9 +68,15 @@ const form = reactive({
   title: '',
   summary: '',
   contentMd: '',
+  contentHtml: '',
   topicId: null,
   sort: 0,
 })
+
+// 标题锚点以原文作为 id（与后端一键刷新渲染规则保持一致），保证目录浮窗可跳转。
+function headingId({ text }) {
+  return text
+}
 
 async function loadTopics() {
   try {
@@ -85,6 +112,9 @@ async function save() {
     ElMessage.warning('请输入文章标题')
     return
   }
+  // 保存时统一用 renderMarkdown 生成 HTML：产物为干净的标准代码块（<pre><code>），
+  // 与“一键刷新”产物完全一致，公开详情页无需 md-editor-v3 组件样式即可正常展示。
+  form.contentHtml = renderMarkdown(form.contentMd)
   saving.value = true
   try {
     let res
